@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../Barrier3D/.idea/Barrier3D.iml" filepath="$PROJECT_DIR$/../Barrier3D/.idea/Barrier3D.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/BarrierBMFT.iml" filepath="$PROJECT_DIR$/.idea/BarrierBMFT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../PyBMFT-C/.idea/PyBMFT-C.iml" filepath="$PROJECT_DIR$/../PyBMFT-C/.idea/PyBMFT-C.iml" />
+    </modules>
+  </component>
+</project>
