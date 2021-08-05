@@ -19,12 +19,6 @@ from barrier3d.tools import plot as B3Dfunc
 barrierbmft = BarrierBMFT()
 
 
-# # specify data directory with initial conditions
-# datadir = "Barrier3D/"
-# input_file = "barrier3d-parameters.yaml"
-# barrierbmft.barrier3d.initialize(datadir + input_file)
-
-
 # ==================================================================================================================================================================================
 # Run the BarrierBMFT model
 
@@ -69,7 +63,7 @@ plt.ylabel("Bay Fetch [m]")
 plt.figure()
 fig = plt.gcf()
 fig.set_size_inches(14, 18)
-plt.rcParams.update({"font.size": 17})
+plt.rcParams.update({"font.size": 12})
 
 # Interior Width
 plt.subplot(5, 1, 1)
@@ -79,25 +73,37 @@ plt.ylabel("Bay Fetch [m]")
 
 # Interior Width
 plt.subplot(5, 1, 2)
-aiw = [a * 10 for a in barrierbmft.barrier3d._model._InteriorWidth_AvgTS]
+aiw = [a * 10 for a in barrierbmft.barrier3d.model._InteriorWidth_AvgTS]
 plt.plot(aiw)
 plt.ylabel("Avg. Width (m)")  # Avergae Interior Width
 
 # Shoreline Change
-scts = [(x - barrierbmft.barrier3d._model._x_s_TS[0]) * 10 for x in barrierbmft.barrier3d._model._x_s_TS]
+scts = [(x - barrierbmft.barrier3d.model._x_s_TS[0]) * 10 for x in barrierbmft.barrier3d.model._x_s_TS]
 plt.subplot(5, 1, 3)
 plt.plot(scts)
 plt.ylabel("Shoreline Position (m)")
 
 # Overwash Flux
 plt.subplot(5, 1, 4)
-plt.plot(barrierbmft.barrier3d._model._QowTS)
+plt.plot(barrierbmft.barrier3d.model._QowTS)
 plt.ylabel("Qow (m^3/m)")
 
 # Shoreface Flux
 plt.subplot(5, 1, 5)
-plt.plot(barrierbmft.barrier3d._model._QsfTS)
+plt.plot(barrierbmft.barrier3d.model._QsfTS)
 plt.ylabel("Qsf (m^3/m)")
+
+# Barrier Elevation (end)
+B3Dfunc.plot_ElevTMAX(
+    barrierbmft.bmftc.dur,
+    barrierbmft.barrier3d.model._DuneDomain,
+    barrierbmft.barrier3d.model._DomainTS,
+    barrierbmft.barrier3d.model._BermEl,
+    barrierbmft.barrier3d.model._Shrub_ON,
+    barrierbmft.barrier3d.model._PercentCoverTS,
+    barrierbmft.barrier3d.model._DeadPercentCoverTS,
+    barrierbmft.barrier3d.model._DuneWidth,
+)
 
 # ===========
 plt.show()
