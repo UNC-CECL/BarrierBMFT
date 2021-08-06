@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the PyBMFT-C model
 
 Copyright Ian RB Reeves
-Last updated: 4 August 2021
+Last updated: 6 August 2021
 """
 
 import time
@@ -16,7 +16,9 @@ from barrier3d.tools import plot as B3Dfunc
 
 # ==================================================================================================================================================================================
 # Create an instance of the BMI class
-barrierbmft = BarrierBMFT()
+barrierbmft = BarrierBMFT(
+    coupling_on=True
+)
 
 
 # ==================================================================================================================================================================================
@@ -53,11 +55,13 @@ plt.plot(barrierbmft.bmftc.elevation[barrierbmft.bmftc.endyear - 1, :])
 plt.xlabel("Distance")
 plt.ylabel("Elevation [m MSL]")
 
+
 # ===========
 plt.figure()
 plt.plot(barrierbmft.bmftc.fetch[barrierbmft.bmftc.startyear: barrierbmft.bmftc.endyear])
 plt.xlabel("Time [yr]")
 plt.ylabel("Bay Fetch [m]")
+
 
 # ===========
 plt.figure()
@@ -93,6 +97,25 @@ plt.subplot(5, 1, 5)
 plt.plot(barrierbmft.barrier3d.model._QsfTS)
 plt.ylabel("Qsf (m^3/m)")
 
+
+# ===========
+barrier_transect = np.mean(barrierbmft.barrier3d.model._InteriorDomain, axis=1) * 10
+x = np.linspace(1, len(barrier_transect) * 10, num=len(barrier_transect) * 10)
+xp = np.linspace(1, len(barrier_transect), num=len(barrier_transect)) * 10
+barrier_transect = np.interp(x, xp, barrier_transect)  # Interpolate from dam to m
+bmf_transect = barrierbmft.bmftc.elevation[barrierbmft.bmftc.endyear - 1, :] - barrierbmft.bmftc.msl[-1] - barrierbmft.bmftc.amp
+whole_transect = np.append(barrier_transect, bmf_transect)
+plt.figure()
+plt.plot(whole_transect)
+plt.xlabel("Distance")
+plt.ylabel("Elevation [m MSL]")
+
+
+# ===========
+plt.show()
+
+
+# ===========
 # Barrier Elevation (end)
 B3Dfunc.plot_ElevTMAX(
     barrierbmft.bmftc.dur,
@@ -105,5 +128,6 @@ B3Dfunc.plot_ElevTMAX(
     barrierbmft.barrier3d.model._DuneWidth,
 )
 
-# ===========
-plt.show()
+
+
+

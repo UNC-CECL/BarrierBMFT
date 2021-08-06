@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the BMFT-C model (python version)
 
 Copyright Ian RB Reeves
-Last updated: 6 July 2021
+Last updated: 6 August 2021
 """
 
 import numpy as np
@@ -33,10 +33,7 @@ def init_equal(bmftc, datadir, input_file):
     barrier3d.initialize(fid)
 
     # Equalize Values of Identical Parameter
-    set_yaml("TMAX", bmftc.dur + 1, fid)
-    # set_yaml("RSLR_const", bmftc.RSLRi / 1000, fid)
-    # set_yaml("BayDepth", bmftc.Bay_depth[bmftc.startyear], fid)
-    # barrier3d.model._TMAX = bmftc.dur  # [yrs] Duration of simulation
+    set_yaml("TMAX", bmftc.dur + 1, fid)  # [yrs] Duration of simulation
     barrier3d.model._RSLR = np.ones([len(barrier3d.model._RSLR) + 1]) * (bmftc.RSLRi / 1000) / 10 # [m/yr] Relative sea-level rise rate, converted units
     barrier3d.model._BayDepth = bmftc.Bay_depth[bmftc.startyear - 1] / 10  # [yrs] Initial depth of bay
 
@@ -50,8 +47,11 @@ class BarrierBMFT:
 
     def __init__(
             self,
+            coupling_on=True,
     ):
         """ Initialize Barrier3D and PyBMFT-C """
+
+        self._coupled = coupling_on
 
         # ===========================================
         # Initialize Model Classes
@@ -61,9 +61,9 @@ class BarrierBMFT:
         self._bmftc = Bmftc(
             name="default",
             time_step=1,
-            time_step_count=70,
+            time_step_count=150,
             relative_sea_level_rise=1,
-            reference_concentration=10,
+            reference_concentration=100,
             slope_upland=0.005,
         )
 
@@ -81,9 +81,6 @@ class BarrierBMFT:
     def update(self, time_step):
         """Update BarrierBMFT by one time step"""
 
-        # Only run Barrier3D after PyBMFTC has completed spin up
-        # if time_step >= self._bmftc.startyear:
-
         # Advance Barrier3D
         self._barrier3d.update()
 
@@ -93,11 +90,13 @@ class BarrierBMFT:
         # Advance PyBMFT-C
         self._bmftc.update()
 
-        # Adjust fetch in PyBMFT-C according to back-barrier shoreline change
-        # self._bmftc._bfo = self._bmftc.bfo + int(round(delta_x_b))
+        if self._coupled:
 
-        # Adjust bay depth in Barrier3D according to depth calculated in PyBMFT-C
-        self._barrier3d.model._BayDepth = self._bmftc.db / 10
+            # Adjust fetch in PyBMFT-C according to back-barrier shoreline change
+            self._bmftc._bfo = self._bmftc.bfo + int(round(delta_x_b))
+
+            # Adjust bay depth in Barrier3D according to depth calculated in PyBMFT-C
+            self._barrier3d.model._BayDepth = self._bmftc.db / 10
 
 
     @property
