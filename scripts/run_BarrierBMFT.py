@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the PyBMFT-C model
 
 Copyright Ian RB Reeves
-Last updated: 6 August 2021
+Last updated: 17 August 2021
 """
 
 import time
@@ -70,32 +70,38 @@ fig.set_size_inches(14, 18)
 plt.rcParams.update({"font.size": 12})
 
 # Interior Width
-plt.subplot(5, 1, 1)
+plt.subplot(6, 1, 1)
 plt.plot(barrierbmft.bmftc.fetch[barrierbmft.bmftc.startyear: barrierbmft.bmftc.endyear])
-plt.xlabel("Time [yr]")
 plt.ylabel("Bay Fetch [m]")
 
+# Back-Barrier Shoreline Change
+plt.subplot(6, 1, 2)
+bbscts = [(x - barrierbmft.barrier3d.model._x_b_TS[0]) * 10 for x in barrierbmft.barrier3d.model._x_b_TS]
+plt.plot(bbscts)
+plt.ylabel("BB Shoreline Change (m)")  # Avergae Interior Width
+
 # Interior Width
-plt.subplot(5, 1, 2)
+plt.subplot(6, 1, 3)
 aiw = [a * 10 for a in barrierbmft.barrier3d.model._InteriorWidth_AvgTS]
 plt.plot(aiw)
 plt.ylabel("Avg. Width (m)")  # Avergae Interior Width
 
 # Shoreline Change
 scts = [(x - barrierbmft.barrier3d.model._x_s_TS[0]) * 10 for x in barrierbmft.barrier3d.model._x_s_TS]
-plt.subplot(5, 1, 3)
+plt.subplot(6, 1, 4)
 plt.plot(scts)
 plt.ylabel("Shoreline Position (m)")
 
 # Overwash Flux
-plt.subplot(5, 1, 4)
+plt.subplot(6, 1, 5)
 plt.plot(barrierbmft.barrier3d.model._QowTS)
 plt.ylabel("Qow (m^3/m)")
 
 # Shoreface Flux
-plt.subplot(5, 1, 5)
+plt.subplot(6, 1, 6)
 plt.plot(barrierbmft.barrier3d.model._QsfTS)
 plt.ylabel("Qsf (m^3/m)")
+plt.xlabel("Time [yr]")
 
 
 # ===========
@@ -103,16 +109,15 @@ barrier_transect = np.mean(barrierbmft.barrier3d.model._InteriorDomain, axis=1) 
 x = np.linspace(1, len(barrier_transect) * 10, num=len(barrier_transect) * 10)
 xp = np.linspace(1, len(barrier_transect), num=len(barrier_transect)) * 10
 barrier_transect = np.interp(x, xp, barrier_transect)  # Interpolate from dam to m
+#subaqueous = barrier_transect[int(barrierbmft.barrier3d.model._InteriorWidth_AvgTS[-1] * 10):]
+subaqueous = np.where(barrier_transect <= 0)[0]
 bmf_transect = barrierbmft.bmftc.elevation[barrierbmft.bmftc.endyear - 1, :] - barrierbmft.bmftc.msl[-1] - barrierbmft.bmftc.amp
+bmf_transect = bmf_transect[len(subaqueous):]
 whole_transect = np.append(barrier_transect, bmf_transect)
 plt.figure()
 plt.plot(whole_transect)
 plt.xlabel("Distance")
 plt.ylabel("Elevation [m MSL]")
-
-
-# ===========
-plt.show()
 
 
 # ===========
@@ -129,5 +134,6 @@ B3Dfunc.plot_ElevTMAX(
 )
 
 
-
+# ===========
+plt.show()
 

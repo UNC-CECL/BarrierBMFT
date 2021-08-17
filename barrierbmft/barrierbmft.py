@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the BMFT-C model (python version)
 
 Copyright Ian RB Reeves
-Last updated: 6 August 2021
+Last updated: 17 August 2021
 """
 
 import numpy as np
@@ -61,9 +61,9 @@ class BarrierBMFT:
         self._bmftc = Bmftc(
             name="default",
             time_step=1,
-            time_step_count=150,
+            time_step_count=30,
             relative_sea_level_rise=1,
-            reference_concentration=100,
+            reference_concentration=50,
             slope_upland=0.005,
         )
 
@@ -84,13 +84,19 @@ class BarrierBMFT:
         # Advance Barrier3D
         self._barrier3d.update()
 
-        # Calculate back-barrier shoreline change from Barrier3D
-        delta_x_b = (self._barrier3d.model._x_b_TS[-2] - self._barrier3d.model._x_b_TS[-1]) * 10  # Convert from dam to m
-
         # Advance PyBMFT-C
         self._bmftc.update()
 
         if self._coupled:
+
+            # Calculate back-barrier shoreline change from Barrier3D
+            delta_x_b = (self._barrier3d.model._x_b_TS[-2] - self._barrier3d.model._x_b_TS[-1]) * 10  # Convert from dam to m
+
+            # Extract overwash bay deposition from subaqueous portion of B3D
+            barrier_transect = np.mean(self._barrier3d.model._InteriorDomain, axis=1) * 10
+            overwash_bay_deposition = barrier_transect[np.where(barrier_transect <= 0)[0][0]: np.where(barrier_transect <= 0)[0][-1] + 1]  # [m] Depths of subaqueous cells
+            overwash_bay_deposition += (self._barrier3d.model._BayDepth * 10)  # Subtract bay depth to get overwash deposition
+            overwash_bay_deposition[overwash_bay_deposition < 0] = 0  # Can't have negative deposition
 
             # Adjust fetch in PyBMFT-C according to back-barrier shoreline change
             self._bmftc._bfo = self._bmftc.bfo + int(round(delta_x_b))
@@ -98,6 +104,8 @@ class BarrierBMFT:
             # Adjust bay depth in Barrier3D according to depth calculated in PyBMFT-C
             self._barrier3d.model._BayDepth = self._bmftc.db / 10
 
+            # Add overwash deposition in the bay from Barrier3D to bay of PyBMFT-C
+            self._bmftc.elevation[self._bmftc.startyear + time_step, 0: len(overwash_bay_deposition)] += overwash_bay_deposition
 
     @property
     def bmftc(self):
@@ -106,7 +114,3 @@ class BarrierBMFT:
     @property
     def barrier3d(self):
         return self._barrier3d
-
-
-
-
