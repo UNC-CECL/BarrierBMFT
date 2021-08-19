@@ -95,7 +95,7 @@ class BarrierBMFT:
             # Extract overwash bay deposition from subaqueous portion of B3D
             barrier_transect = np.mean(self._barrier3d.model._InteriorDomain, axis=1) * 10
             overwash_bay_deposition = barrier_transect[np.where(barrier_transect <= 0)[0][0]: np.where(barrier_transect <= 0)[0][-1] + 1]  # [m] Depths of subaqueous cells
-            overwash_bay_deposition += (self._barrier3d.model._BayDepth * 10)  # Subtract bay depth to get overwash deposition
+            overwash_bay_deposition -= self._bmftc.elevation[self._bmftc.startyear + time_step - 1, 0: len(overwash_bay_deposition)]  # Get deposition for this time step
             overwash_bay_deposition[overwash_bay_deposition < 0] = 0  # Can't have negative deposition
 
             # Adjust fetch in PyBMFT-C according to back-barrier shoreline change
@@ -105,7 +105,12 @@ class BarrierBMFT:
             self._barrier3d.model._BayDepth = self._bmftc.db / 10
 
             # Add overwash deposition in the bay from Barrier3D to bay of PyBMFT-C
-            self._bmftc.elevation[self._bmftc.startyear + time_step, 0: len(overwash_bay_deposition)] += overwash_bay_deposition
+            self._bmftc.elevation[self._bmftc.startyear + time_step, 0: len(overwash_bay_deposition)] += overwash_bay_deposition  # IR 17 Aug 21: PyBMFTC erases this addition each time-step, so this currently does effectively nothing
+
+            # Adjust bay routing width in Barrier3D if fetch in PyBMFTC becomes narrower than 100 m
+            if self._bmftc.bfo < 100:
+                self._barrier3d.model.bay_routing_width = int(round(self._bmftc.bfo / 10))
+
 
     @property
     def bmftc(self):
