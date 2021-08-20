@@ -99,7 +99,7 @@ class BarrierBMFT:
             overwash_bay_deposition[overwash_bay_deposition < 0] = 0  # Can't have negative deposition
 
             # Adjust fetch in PyBMFT-C according to back-barrier shoreline change
-            self._bmftc._bfo = self._bmftc.bfo + int(round(delta_x_b))
+            self._bmftc._bfo = self._bmftc.bfo + int(round(delta_x_b))  # IR 19 Aug 21: Is this an OK way to do it? Or should the left (i.e. first) cell in the bay be deleted in elevation, mineral, organic_dep, etc???
 
             # Adjust bay depth in Barrier3D according to depth calculated in PyBMFT-C
             self._barrier3d.model._BayDepth = self._bmftc.db / 10
