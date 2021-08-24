@@ -76,40 +76,39 @@ plt.ylabel("Bay Fetch [m]")
 
 # Back-Barrier Shoreline Change
 plt.subplot(6, 1, 2)
-bbscts = [(x - barrierbmft.barrier3d.model._x_b_TS[0]) * 10 for x in barrierbmft.barrier3d.model._x_b_TS]
+bbscts = [(x - barrierbmft.barrier3d.model.x_b_TS[0]) * 10 for x in barrierbmft.barrier3d.model.x_b_TS]
 plt.plot(bbscts)
 plt.ylabel("BB Shoreline Change (m)")  # Avergae Interior Width
 
 # Interior Width
 plt.subplot(6, 1, 3)
-aiw = [a * 10 for a in barrierbmft.barrier3d.model._InteriorWidth_AvgTS]
+aiw = [a * 10 for a in barrierbmft.barrier3d.model.InteriorWidth_AvgTS]
 plt.plot(aiw)
 plt.ylabel("Avg. Width (m)")  # Avergae Interior Width
 
 # Shoreline Change
-scts = [(x - barrierbmft.barrier3d.model._x_s_TS[0]) * 10 for x in barrierbmft.barrier3d.model._x_s_TS]
+scts = [(x - barrierbmft.barrier3d.model.x_s_TS[0]) * 10 for x in barrierbmft.barrier3d.model.x_s_TS]
 plt.subplot(6, 1, 4)
 plt.plot(scts)
 plt.ylabel("Shoreline Position (m)")
 
 # Overwash Flux
 plt.subplot(6, 1, 5)
-plt.plot(barrierbmft.barrier3d.model._QowTS)
+plt.plot(barrierbmft.barrier3d.model.QowTS)
 plt.ylabel("Qow (m^3/m)")
 
 # Shoreface Flux
 plt.subplot(6, 1, 6)
-plt.plot(barrierbmft.barrier3d.model._QsfTS)
+plt.plot(barrierbmft.barrier3d.model.QsfTS)
 plt.ylabel("Qsf (m^3/m)")
 plt.xlabel("Time [yr]")
 
 
 # ===========
-barrier_transect = np.mean(barrierbmft.barrier3d.model._InteriorDomain, axis=1) * 10
+barrier_transect = np.mean(barrierbmft.barrier3d.model.InteriorDomain, axis=1) * 10
 x = np.linspace(1, len(barrier_transect) * 10, num=len(barrier_transect) * 10)
 xp = np.linspace(1, len(barrier_transect), num=len(barrier_transect)) * 10
 barrier_transect = np.interp(x, xp, barrier_transect)  # Interpolate from dam to m
-#subaqueous = barrier_transect[int(barrierbmft.barrier3d.model._InteriorWidth_AvgTS[-1] * 10):]
 subaqueous = np.where(barrier_transect <= 0)[0]
 bmf_transect = barrierbmft.bmftc.elevation[barrierbmft.bmftc.endyear - 1, :] - barrierbmft.bmftc.msl[-1] - barrierbmft.bmftc.amp
 bmf_transect = bmf_transect[len(subaqueous):]
@@ -118,6 +117,13 @@ plt.figure()
 plt.plot(whole_transect)
 plt.xlabel("Distance")
 plt.ylabel("Elevation [m MSL]")
+
+
+# ===========
+plt.figure()
+plt.plot((barrierbmft.barrier3d.model.x_b_TS - barrierbmft.barrier3d.model.x_b_TS[0]) * 10)
+plt.xlabel("Time [yr]")
+plt.ylabel("Back-Barrier Shoreline Position [m]")
 
 
 # ===========
