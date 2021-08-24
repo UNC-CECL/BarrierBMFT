@@ -97,15 +97,6 @@ class BarrierBMFT:
 
         if self._coupled:
 
-            # # Calculate back-barrier shoreline change from Barrier3D
-            # delta_x_b = (self._barrier3d.model.x_b_TS[-1] - self._barrier3d.model.x_b_TS[-2]) * 10  # Convert from dam to m; (+) landward movement, (-) seaward movement
-
-            # # Extract overwash bay deposition from subaqueous portion of B3D
-            # barrier_transect = np.mean(self._barrier3d.model.InteriorDomain, axis=1) * 10
-            # overwash_bay_deposition = barrier_transect[np.where(barrier_transect <= 0)[0][0]: np.where(barrier_transect <= 0)[0][-1] + 1]  # [m] Depths of subaqueous cells
-            # overwash_bay_deposition -= self._bmftc.elevation[self._bmftc.startyear + time_step - 1, 0: len(overwash_bay_deposition)]  # Get deposition for this time step
-            # overwash_bay_deposition[overwash_bay_deposition < 0] = 0  # Can't have negative deposition
-
             # ===========================================
             # Adjust fetch and barrier-bay shoreline position in PyBMFT-C according to back-barrier shoreline change
             delta_x_b = (self._barrier3d.model.x_b_TS[-1] - self._barrier3d.model.x_b_TS[-2]) * 10  # [m] Calculate back-barrier shoreline change from Barrier3D; (+) landward movement, (-) seaward movement
@@ -144,7 +135,7 @@ class BarrierBMFT:
             self._barrier3d.model._shoreface_fine_fraction = fine_thickness / (fine_thickness + self._bmftc.db + self._barrier3d.model.h_b_TS[-1] * 10)
 
             # ===========================================
-            # Add overwash deposition in the bay from Barrier3D to bay of PyBMFT-C
+            # Add overwash deposition in the bay from Barrier3D to bay of PyBMFT-C -- IR 17 Aug 21: Currently does nothing...
             barrier_transect = np.mean(self._barrier3d.model.InteriorDomain, axis=1) * 10
             overwash_bay_deposition = barrier_transect[np.where(barrier_transect <= 0)[0][0]: np.where(barrier_transect <= 0)[0][-1] + 1]  # [m] Depths of subaqueous cells
             overwash_bay_deposition -= self._bmftc.elevation[self._bmftc.startyear + time_step - 1, 0: len(overwash_bay_deposition)]  # Extracts overwash bay deposition from subaqueous portion of B3D for this time step
