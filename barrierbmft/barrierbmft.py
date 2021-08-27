@@ -65,7 +65,7 @@ class BarrierBMFT:
             relative_sea_level_rise=1,
             reference_concentration=50,
             slope_upland=0.005,
-            seagrass_on=False,
+            seagrass_on=True,
         )
 
         # Specify data directory with Barrier3D initial conditions
