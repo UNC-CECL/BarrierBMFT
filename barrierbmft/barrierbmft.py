@@ -65,7 +65,11 @@ class BarrierBMFT:
             relative_sea_level_rise=1,
             reference_concentration=50,
             slope_upland=0.005,
-            seagrass_on=True,
+            bay_fetch_initial=3000,
+            wind_speed=5,
+            seagrass_on=False,
+            critical_shear_mudflat=0.2,
+            filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
         )
 
         # Specify data directory with Barrier3D initial conditions
