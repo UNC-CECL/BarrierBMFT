@@ -160,6 +160,7 @@ class BarrierBMFT:
             InteriorWidth[bl] = width
 
         addRows = (max(InteriorWidth) + len(marsh_transect)) - StartDomainWidth + 1
+        # Update domain sizes
         if addRows > 0:
             Marsh_Addition = np.ones([addRows, self._barrier3d.model.BarrierLength]) * -self._barrier3d.model._BayDepth
             Zero_Addition = np.zeros([addRows, self._barrier3d.model.BarrierLength])
@@ -171,10 +172,26 @@ class BarrierBMFT:
             self._barrier3d.model._ShrubPercentCover = np.vstack([self._barrier3d.model.ShrubPercentCover, Zero_Addition])
             self._barrier3d.model._DeadPercentCover = np.vstack([self._barrier3d.model.DeadPercentCover, Zero_Addition])
             self._barrier3d.model._BurialDomain = np.vstack([self._barrier3d.model.BurialDomain, Zero_Addition])
+            self._barrier3d.model._ShrubDomainAll = self._barrier3d.model.ShrubDomainFemale + self._barrier3d.model.ShrubDomainMale
+            print()
+            print("ADD", addRows)
         elif addRows < 0:
-            NewDomain = np.vstack([self._barrier3d.model.InteriorDomain])
+            NewDomain = self._barrier3d.model.InteriorDomain[:addRows, :]
+            # Update size of shrub domains, too
+            self._barrier3d.model._ShrubDomainFemale = self._barrier3d.model.ShrubDomainFemale[:addRows, :]
+            self._barrier3d.model._ShrubDomainMale = self._barrier3d.model.ShrubDomainMale[:addRows, :]
+            self._barrier3d.model._ShrubDomainDead = self._barrier3d.model.ShrubDomainDead[:addRows, :]
+            self._barrier3d.model._ShrubPercentCover = self._barrier3d.model.ShrubPercentCover[:addRows, :]
+            self._barrier3d.model._DeadPercentCover = self._barrier3d.model.DeadPercentCover[:addRows, :]
+            self._barrier3d.model._BurialDomain = self._barrier3d.model.BurialDomain[:addRows, :]
+            self._barrier3d.model._ShrubDomainAll = self._barrier3d.model._ShrubDomainFemale + self._barrier3d.model._ShrubDomainMale
+            print()
+            print("SUBTRACT", addRows)
+            # NOTE! Subtraction is due to RSLR -- should not be subtracting marsh but replacing interior with new marsh!
         else:
             NewDomain = self._barrier3d.model.InteriorDomain  # Domains stay same size
+            print()
+            print("NO CHANGE")
 
         for w in range(self._barrier3d.model.BarrierLength):
             InteriorTransect = NewDomain[:, w]  # [dam]
@@ -220,9 +237,6 @@ class BarrierBMFT:
                 add_zeros = np.zeros([previous_interior_width - len(barrier_interior_transect)])
                 barrier_interior_transect = np.append(add_zeros, barrier_interior_transect)  # Add zeros (ocean) to fit PyBMFT-C array length
             self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_f:] = np.flip(barrier_interior_transect)  # Replace previous barrier interior with current (flipped cross-shore)
-
-        print()
-        print("     x_f_BB:", self._bmftc_BB.x_f)
 
         # Advance PyBMFT-C mainland and back-barrier marshes
         self._bmftc_ML.update()
@@ -307,3 +321,11 @@ class BarrierBMFT:
     @property
     def x_b_TS_bmft(self):
         return self._x_b_TS_bmft
+
+    @property
+    def bmftc_BB(self):
+        return self._bmftc_BB
+
+    @property
+    def bmftc_ML(self):
+        return self._bmftc_ML

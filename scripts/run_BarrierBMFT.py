@@ -51,16 +51,33 @@ plt.show()
 
 # ===========
 plt.figure()
-plt.plot(barrierbmft.bmftc.elevation[barrierbmft.bmftc.endyear - 1, :])
+plt.plot(barrierbmft.bmftc_BB.elevation[barrierbmft.bmftc_BB.endyear - 1, :])
 plt.xlabel("Distance")
 plt.ylabel("Elevation [m MSL]")
 
 
 # ===========
 plt.figure()
-plt.plot(barrierbmft.bmftc.fetch[barrierbmft.bmftc.startyear: barrierbmft.bmftc.endyear])
+plt.plot(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear])
 plt.xlabel("Time [yr]")
 plt.ylabel("Bay Fetch [m]")
+
+# ===========
+plt.figure()
+
+plt.subplot(3, 1, 1)
+marsh_width_TS = barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear] - barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear]
+plt.plot(marsh_width_TS)
+plt.xlabel("Time [yr]")
+plt.ylabel("Back-Barrier Marsh Width [m]")
+plt.subplot(3, 1, 2)
+plt.plot(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear])
+plt.xlabel("Time [yr]")
+plt.ylabel("Back-Barrier Marsh Edge Location [m]")
+plt.subplot(3, 1, 3)
+plt.plot(barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear])
+plt.xlabel("Time [yr]")
+plt.ylabel("Back-Barrier Forest Edge Location [m]")
 
 
 # ===========
@@ -71,7 +88,7 @@ plt.rcParams.update({"font.size": 12})
 
 # Interior Width
 plt.subplot(6, 1, 1)
-plt.plot(barrierbmft.bmftc.fetch[barrierbmft.bmftc.startyear: barrierbmft.bmftc.endyear])
+plt.plot(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear])
 plt.ylabel("Bay Fetch [m]")
 
 # Back-Barrier Shoreline Change
