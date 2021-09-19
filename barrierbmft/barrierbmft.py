@@ -115,7 +115,7 @@ class BarrierBMFT:
             seagrass_on=False,
             forest_on=True,
             critical_shear_mudflat=0.2,
-            filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
+            # filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
         )
 
         # Specify data directory with Barrier3D initial conditions
@@ -144,10 +144,11 @@ class BarrierBMFT:
         marsh_transect = self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_m: self._bmftc_BB.x_f]  # Marsh elevation from PyBMFT-C
         len_marsh_transect = 10 * ((len(marsh_transect) + 5) // 10 )  # Cross-shore length of marsh rounded to nearest dam
         x = np.linspace(1, len(marsh_transect) / 10, num=int((len_marsh_transect / 10)))
-        xp = np.linspace(1, len(marsh_transect) / 10, num=int(len_marsh_transect) + 1)
+        xp = np.linspace(1, len(marsh_transect) / 10, num=int(len(marsh_transect)))
         marsh_transect = np.interp(x, xp, marsh_transect)  # Interpolate marsh elevation from m to dam in the horizontal dimension
         marsh_transect -= (self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step - 1] + self._bmftc_BB.amp)  # Make marsh elevation relative to MHW datum
         marsh_transect /= 10  # Convert from m to dam in the vertial dimension
+        marsh_transect = np.flip(marsh_transect)
         x_m_b3d = math.ceil(self._barrier3d.model.InteriorWidth_AvgTS[-1]) + len(marsh_transect)  # Cross-shore location of back-barrier marsh edge in InteriorDomain
         StartDomainWidth = np.shape(self._barrier3d.model.InteriorDomain)[0]
         InteriorWidth = [0] * self._barrier3d.model.BarrierLength
@@ -159,18 +160,17 @@ class BarrierBMFT:
             InteriorWidth[bl] = width
 
         addRows = (max(InteriorWidth) + len(marsh_transect)) - StartDomainWidth + 1
-
         if addRows > 0:
             Marsh_Addition = np.ones([addRows, self._barrier3d.model.BarrierLength]) * -self._barrier3d.model._BayDepth
             Zero_Addition = np.zeros([addRows, self._barrier3d.model.BarrierLength])
             NewDomain = np.vstack([self._barrier3d.model.InteriorDomain, Marsh_Addition])
             # Update size of shrub domains, too
-            self._barrier3d.model.ShrubDomainFemale = np.vstack([self._barrier3d.model._ShrubDomainFemale, Zero_Addition])
-            self._barrier3d.model.ShrubDomainMale = np.vstack([self._barrier3d.model._ShrubDomainMale, Zero_Addition])
-            self._barrier3d.model.ShrubDomainDead = np.vstack([self._barrier3d.model._ShrubDomainDead, Zero_Addition])
-            self._barrier3d.model.ShrubPercentCover = np.vstack([self._barrier3d.model._ShrubPercentCover, Zero_Addition])
-            self._barrier3d.model.DeadPercentCover = np.vstack([self._barrier3d.model._DeadPercentCover, Zero_Addition])
-            self._barrier3d.model.BurialDomain = np.vstack([self._barrier3d.model._BurialDomain, Zero_Addition])
+            self._barrier3d.model._ShrubDomainFemale = np.vstack([self._barrier3d.model.ShrubDomainFemale, Zero_Addition])
+            self._barrier3d.model._ShrubDomainMale = np.vstack([self._barrier3d.model.ShrubDomainMale, Zero_Addition])
+            self._barrier3d.model._ShrubDomainDead = np.vstack([self._barrier3d.model.ShrubDomainDead, Zero_Addition])
+            self._barrier3d.model._ShrubPercentCover = np.vstack([self._barrier3d.model.ShrubPercentCover, Zero_Addition])
+            self._barrier3d.model._DeadPercentCover = np.vstack([self._barrier3d.model.DeadPercentCover, Zero_Addition])
+            self._barrier3d.model._BurialDomain = np.vstack([self._barrier3d.model.BurialDomain, Zero_Addition])
         elif addRows < 0:
             NewDomain = np.vstack([self._barrier3d.model.InteriorDomain])
         else:
@@ -181,11 +181,13 @@ class BarrierBMFT:
             boundary_elevation = self._barrier3d.model.SL / 10  # [dam] self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_f - 1]
             x_b_effective = np.where(InteriorTransect < boundary_elevation)[0][0]  # Cross shore location of marsh-barrier boundary
             InteriorTransect[x_b_effective: x_b_effective + len(marsh_transect)] = marsh_transect
+            InteriorTransect[x_b_effective + len(marsh_transect):] = -self._barrier3d.model._BayDepth
             NewDomain[:, w] = InteriorTransect
 
         # elevFig1 = plt.figure()
         # ax = elevFig1.add_subplot(111)
         # ax.matshow(NewDomain * 10, origin="lower", cmap="terrain", vmin=-1.1, vmax=4.0)
+        # plt.title("After")
         # plt.show()
 
         self._barrier3d.model.InteriorDomain = NewDomain
@@ -210,6 +212,7 @@ class BarrierBMFT:
             x = np.linspace(1, len(barrier_interior_transect) * 10, num=len(barrier_interior_transect) * 10)
             xp = np.linspace(1, len(barrier_interior_transect), num=len(barrier_interior_transect)) * 10
             barrier_interior_transect = np.interp(x, xp, barrier_interior_transect)  # Interpolate from dam to m (horizontal dimension)
+            barrier_interior_transect += (self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step - 1] + self._bmftc_BB.amp)  # Convert vertical datums
             previous_interior_width = len(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_f:])  # [m] Width of barrier interior from last timestep
             if len(barrier_interior_transect) > previous_interior_width:
                 barrier_interior_transect = barrier_interior_transect[-previous_interior_width]  # Trim length to fit PyBMFT-C array length
