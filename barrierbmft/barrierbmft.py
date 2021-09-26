@@ -64,7 +64,7 @@ def init_equal(bmftc_ML, bmftc_BB, datadir, input_file):
 
     # Equalize Barrier3D/PyBMFT-C Values of Identical Parameters
     set_yaml("TMAX", bmftc_ML.dur + 1, fid)  # [yrs] Duration of simulation
-    barrier3d.model._RSLR = np.ones([len(barrier3d.model._RSLR) + 1]) * (bmftc_ML.RSLRi / 1000) / 10 # [m/yr] Relative sea-level rise rate, converted units
+    barrier3d.model._RSLR = np.ones([len(barrier3d.model._RSLR) + 1]) * (bmftc_ML.RSLRi / 1000) / 10  # [m/yr] Relative sea-level rise rate, converted units
     barrier3d.model._BayDepth = bmftc_ML.Bay_depth[bmftc_ML.startyear - 1] / 10  # [yrs] Initial depth of bay
 
     return barrier3d
@@ -91,8 +91,8 @@ class BarrierBMFT:
         # Mainland shoreline
         self._bmftc_ML = Bmftc(
             name="mainland",
-            time_step_count=30,
-            relative_sea_level_rise=3,
+            time_step_count=20,
+            relative_sea_level_rise=1,
             reference_concentration=50,
             slope_upland=0.005,
             bay_fetch_initial=3000,
@@ -106,8 +106,8 @@ class BarrierBMFT:
         # Back-barier shoreline
         self._bmftc_BB = Bmftc(
             name="back-barrier",
-            time_step_count=30,
-            relative_sea_level_rise=3,
+            time_step_count=20,
+            relative_sea_level_rise=1,
             reference_concentration=50,
             slope_upland=0.005,
             bay_fetch_initial=3000,
@@ -134,6 +134,12 @@ class BarrierBMFT:
         self._x_b_TS_ML = np.zeros([self._bmftc_ML.dur])
         self._x_b_TS_BB = np.zeros([self._bmftc_BB.dur])
 
+        #
+        initial_BB_subaerial_width = self._bmftc_BB.B - self._bmftc_BB.x_f
+        self._x_s_initial = self._barrier3d.model.x_s  # Initial x-position of shoreline in Barrier3D
+        self._x_s_offset = initial_BB_subaerial_width - (self._barrier3d.model.InteriorWidth_AvgTS[-1] * 10)  # Initial location of B in PyBMFT-C relative to x_s_initial in Barrier3D
+        self._x_s_bmftc = self._bmftc_BB.x_f + self._barrier3d.model.InteriorWidth_AvgTS[-1] * 10
+
     # ===========================================
     # Time Loop
 
@@ -143,7 +149,7 @@ class BarrierBMFT:
         # ===========================================
         # Add marsh from PyBMFT-C to Barrier3D
         marsh_transect = self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_m: self._bmftc_BB.x_f]  # Marsh elevation from PyBMFT-C
-        len_marsh_transect = 10 * ((len(marsh_transect) + 5) // 10 )  # Cross-shore length of marsh rounded to nearest dam
+        len_marsh_transect = 10 * ((len(marsh_transect) + 5) // 10)  # Cross-shore length of marsh rounded to nearest dam
         x = np.linspace(1, len(marsh_transect) / 10, num=int((len_marsh_transect / 10)))
         xp = np.linspace(1, len(marsh_transect) / 10, num=int(len(marsh_transect)))
         marsh_transect = np.interp(x, xp, marsh_transect)  # Interpolate marsh elevation from m to dam in the horizontal dimension
@@ -200,7 +206,7 @@ class BarrierBMFT:
             print()
             print("NO CHANGE")
 
-        # Update Marsh
+        # Update Marsh In Barrier3D
         for w in range(self._barrier3d.model.BarrierLength):
             InteriorTransect = NewDomain[:, w]  # [dam]
             boundary_elevation = self._barrier3d.model.SL / 10  # [dam] self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_f - 1]
@@ -215,28 +221,63 @@ class BarrierBMFT:
         # Advance Barrier3D
         self._barrier3d.update()
 
+        plt.figure()
+        plt.plot(self.bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, :], c='black')
+        plt.xlabel("Distance")
+        plt.ylabel("Back-Barrier Elevation [m MSL]")
+        plt.title("Timestep " + str(time_step))
+
         # ===========================================
         # Adjust fetch and barrier-bay shoreline position in PyBMFT-C according to back-barrier shoreline change (i.e. overwash deposition)
         delta_x_b_b3d = (self._barrier3d.model.x_b_TS[-1] - self._barrier3d.model.x_b_TS[-2]) * 10  # [m] Calculate back-barrier shoreline change from Barrier3D; (+) landward movement, (-) seaward movement
         self._bmftc_BB._x_f = self._bmftc_BB.x_f - int(math.ceil(delta_x_b_b3d))  # Bay-barrier shoreline  # IR 9Sep21: ceil or round?
 
         # ===========================================
-        # Update PyBMFT-C transect elevation based on Barrier3D interior morphology
-        barrier_transect = np.mean(self._barrier3d.model.InteriorDomain, axis=1) * 10  # Take average across alongshore dimension, convert to m (vertical dimension)
-        boundary_elevation = self._barrier3d.model.SL  # self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_f - 1]
-        x_b_effective = np.where(barrier_transect < boundary_elevation)[0][0]  # Cross shore location of marsh-barrier boundary
-        barrier_interior_transect = barrier_transect[:x_b_effective]  # Transect of subaerial barrier interior from Barrier3D
-        x = np.linspace(1, len(barrier_interior_transect) * 10, num=len(barrier_interior_transect) * 10)
-        xp = np.linspace(1, len(barrier_interior_transect), num=len(barrier_interior_transect)) * 10
-        barrier_interior_transect = np.interp(x, xp, barrier_interior_transect)  # Interpolate from dam to m (horizontal dimension)
-        barrier_interior_transect += (self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step - 1] + self._bmftc_BB.amp)  # Convert vertical datums
-        previous_interior_width = len(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_f:])  # [m] Width of barrier interior from last timestep
-        if len(barrier_interior_transect) > previous_interior_width:
-            barrier_interior_transect = barrier_interior_transect[-previous_interior_width]  # Trim length to fit PyBMFT-C array length
-        elif len(barrier_interior_transect) < previous_interior_width:
-            add_zeros = np.zeros([previous_interior_width - len(barrier_interior_transect)])
-            barrier_interior_transect = np.append(add_zeros, barrier_interior_transect)  # Add zeros (ocean) to fit PyBMFT-C array length
-        self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_f:] = np.flip(barrier_interior_transect)  # Replace previous barrier interior with current (flipped cross-shore)
+        # Update PyBMFT-C transect elevation based on Barrier3D elevation change
+        shoreline_location = self._barrier3d.model.x_s - self._x_s_initial
+        self._x_s_offset += (shoreline_location * 10)
+        self._x_s_bmftc = self._x_s_bmftc - (self._barrier3d.model.x_s_TS[-1] - self._barrier3d.model.x_s_TS[-2]) * 10
+
+        b3d_transect = np.mean(self._barrier3d.model.InteriorDomain, axis=1) * 10  # Take average across alongshore dimension, convert to m (vertical dimension)
+
+        x_f = np.where(b3d_transect < self._barrier3d.model.SL)[0][0] - 1
+        x_m = np.where(b3d_transect < self._barrier3d.model.SL - self._bmftc_BB.amp)[0][0] - 1  # Is this the best rule for finding new marsh edge location?
+
+        x = np.linspace(1, len(b3d_transect) * 10, num=len(b3d_transect) * 10)
+        xp = np.linspace(1, len(b3d_transect)-1, num=len(b3d_transect)) * 10
+        b3d_transect_uninterp = b3d_transect
+        b3d_transect = np.interp(x, xp, b3d_transect)  # Interpolate from dam to m (horizontal dimension)
+
+        # x_f = np.where(b3d_transect < self._barrier3d.model.SL)[0][0] #- 10
+        # x_m = np.where(b3d_transect < self._barrier3d.model.SL - self._bmftc_BB.amp)[0][0] - 10  # Is this the best rule for finding new marsh edge location?
+
+
+        old_x_f = self._bmftc_BB.x_f
+        old_x_m = self._bmftc_BB.x_m
+        self._bmftc_BB._x_f = int(round(self._x_s_bmftc)) - x_f * 10 + 5  # This can potentially be more precise! Is +/- 5 correct?
+        self._bmftc_BB._x_m = int(round(self._x_s_bmftc)) - x_m * 10 - 5  # This can potentially be more precise! Is +/- 5 correct?
+
+        plt.figure()
+        plt.plot(b3d_transect)
+        plt.xlabel("Distance")
+        plt.ylabel("B3D Elevation [m MSL]")
+        plt.title("Timestep " + str(time_step))
+
+        b3d_transect += (self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step - 1] + self._bmftc_BB.amp + (self._bmftc_BB.RSLRi / 1000))  # Convert vertical datums
+
+        b3d_transect = b3d_transect[:x_m * 10]
+
+        print("Offset:", self._x_s_offset)
+        if self._x_s_offset < 0:
+            barrier_marsh_transect = b3d_transect[int(round(self._x_s_offset)):]  # Trim length to fit PyBMFT-C array length
+        elif self._x_s_offset > 0:
+            add_msl = np.ones([int(round(self._x_s_offset))]) * self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step - 1]
+            barrier_marsh_transect = np.append(add_msl, b3d_transect)  # Add MSL (ocean) to fit PyBMFT-C array length
+
+        self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, -len(barrier_marsh_transect):] = np.flip(b3d_transect)
+
+        plt.plot(self.bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, :], c='red')
+        plt.show()
 
         # Advance PyBMFT-C mainland and back-barrier marshes
         self._bmftc_ML.update()
@@ -304,11 +345,10 @@ class BarrierBMFT:
 
             # ===========================================
             # Add overwash deposition in the bay from Barrier3D to bay of PyBMFT-C -- IR 17 Aug 21: Currently does nothing...
-            # overwash_bay_deposition = barrier_transect[np.where(barrier_transect <= 0)[0][0]: np.where(barrier_transect <= 0)[0][-1] + 1]  # [m] Depths of subaqueous cells
+            # overwash_bay_deposition = b3d_transect[np.where(b3d_transect <= 0)[0][0]: np.where(b3d_transect <= 0)[0][-1] + 1]  # [m] Depths of subaqueous cells
             # overwash_bay_deposition -= self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step - 1, 0: len(overwash_bay_deposition)]  # Extracts overwash bay deposition from subaqueous portion of B3D for this time step
             # overwash_bay_deposition[overwash_bay_deposition < 0] = 0  # Can't have negative deposition
             # self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step, 0: len(overwash_bay_deposition)] += overwash_bay_deposition  # IR 17 Aug 21: PyBMFTC erases this addition each time-step, so this currently does effectively nothing
-
 
     @property
     def bmftc(self):
