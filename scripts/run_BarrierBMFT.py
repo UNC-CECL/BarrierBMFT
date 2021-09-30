@@ -71,6 +71,8 @@ plt.ylabel("Bay Fetch [m]")
 
 # ===========
 plt.figure()
+fig = plt.gcf()
+fig.set_size_inches(7, 16)
 plt.subplot(3, 1, 1)
 marsh_width_TS = barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear] - barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear]
 plt.plot(marsh_width_TS)
@@ -87,6 +89,8 @@ plt.ylabel("PyBMFT-C Back-Barrier Forest Edge Location [m]")
 
 # ===========
 plt.figure()
+fig = plt.gcf()
+fig.set_size_inches(7, 16)
 plt.subplot(3, 1, 1)
 bbscts = [(x - barrierbmft.barrier3d.model.x_b_TS[0]) * 10 for x in barrierbmft.barrier3d.model.x_b_TS][1:]
 plt.plot(bbscts)
@@ -101,44 +105,44 @@ plt.xlabel("Time [yr]")
 plt.ylabel("Difference [m]")
 
 # ===========
-# plt.figure()
-# fig = plt.gcf()
-# fig.set_size_inches(14, 18)
-# plt.rcParams.update({"font.size": 12})
-#
-# # Interior Width
-# plt.subplot(6, 1, 1)
-# plt.plot(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear])
-# plt.ylabel("Bay Fetch [m]")
-#
-# # Back-Barrier Shoreline Change
-# plt.subplot(6, 1, 2)
-# bbscts = [(x - barrierbmft.barrier3d.model.x_b_TS[0]) * 10 for x in barrierbmft.barrier3d.model.x_b_TS]
-# plt.plot(bbscts)
-# plt.ylabel("BB Shoreline Change (m)")  # Avergae Interior Width
-#
-# # Interior Width
-# plt.subplot(6, 1, 3)
-# aiw = [a * 10 for a in barrierbmft.barrier3d.model.InteriorWidth_AvgTS]
-# plt.plot(aiw)
-# plt.ylabel("Avg. Width (m)")  # Avergae Interior Width
-#
-# # Shoreline Change
-# scts = [(x - barrierbmft.barrier3d.model.x_s_TS[0]) * 10 for x in barrierbmft.barrier3d.model.x_s_TS]
-# plt.subplot(6, 1, 4)
-# plt.plot(scts)
-# plt.ylabel("Shoreline Position (m)")
-#
-# # Overwash Flux
-# plt.subplot(6, 1, 5)
-# plt.plot(barrierbmft.barrier3d.model.QowTS)
-# plt.ylabel("Qow (m^3/m)")
-#
-# # Shoreface Flux
-# plt.subplot(6, 1, 6)
-# plt.plot(barrierbmft.barrier3d.model.QsfTS)
-# plt.ylabel("Qsf (m^3/m)")
-# plt.xlabel("Time [yr]")
+plt.figure()
+fig = plt.gcf()
+fig.set_size_inches(14, 18)
+plt.rcParams.update({"font.size": 12})
+
+# Interior Width
+plt.subplot(6, 1, 1)
+plt.plot(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear])
+plt.ylabel("Bay Fetch [m]")
+
+# Back-Barrier Shoreline Change
+plt.subplot(6, 1, 2)
+bbscts = [(x - barrierbmft.barrier3d.model.x_b_TS[0]) * 10 for x in barrierbmft.barrier3d.model.x_b_TS]
+plt.plot(bbscts)
+plt.ylabel("BB Shoreline Change (m)")  # Avergae Interior Width
+
+# Interior Width
+plt.subplot(6, 1, 3)
+aiw = [a * 10 for a in barrierbmft.barrier3d.model.InteriorWidth_AvgTS]
+plt.plot(aiw)
+plt.ylabel("Avg. Width (m)")  # Avergae Interior Width
+
+# Shoreline Change
+scts = [(x - barrierbmft.barrier3d.model.x_s_TS[0]) * 10 for x in barrierbmft.barrier3d.model.x_s_TS]
+plt.subplot(6, 1, 4)
+plt.plot(scts)
+plt.ylabel("Shoreline Position (m)")
+
+# Overwash Flux
+plt.subplot(6, 1, 5)
+plt.plot(barrierbmft.barrier3d.model.QowTS)
+plt.ylabel("Qow (m^3/m)")
+
+# Shoreface Flux
+plt.subplot(6, 1, 6)
+plt.plot(barrierbmft.barrier3d.model.QsfTS)
+plt.ylabel("Qsf (m^3/m)")
+plt.xlabel("Time [yr]")
 
 
 # ===========
@@ -169,6 +173,18 @@ plt.figure()
 plt.plot((barrierbmft.barrier3d.model.x_b_TS - barrierbmft.barrier3d.model.x_b_TS[0]) * 10)
 plt.xlabel("Time [yr]")
 plt.ylabel("Barrier3D Back-Barrier Shoreline Position [m]")
+
+# ===========
+plt.figure()
+fig = plt.gcf()
+fig.set_size_inches(7, 12)
+plt.subplot(2, 1, 1)
+plt.plot(barrierbmft.x_f_TS)
+plt.ylabel("BMFTC x_f [m]")
+plt.subplot(2, 1, 2)
+plt.plot(barrierbmft.x_m_TS)
+plt.xlabel("Time [yr]")
+plt.ylabel("BMFTC x_m [m]")
 
 
 # ===========
