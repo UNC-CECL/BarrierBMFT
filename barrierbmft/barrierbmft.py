@@ -92,8 +92,8 @@ class BarrierBMFT:
         self._bmftc_ML = Bmftc(
             name="mainland",
             time_step_count=15,
-            relative_sea_level_rise=1,
-            reference_concentration=50,
+            relative_sea_level_rise=4,
+            reference_concentration=10,
             slope_upland=0.005,
             bay_fetch_initial=3000,
             wind_speed=5,
@@ -107,8 +107,8 @@ class BarrierBMFT:
         self._bmftc_BB = Bmftc(
             name="back-barrier",
             time_step_count=15,
-            relative_sea_level_rise=1,
-            reference_concentration=50,
+            relative_sea_level_rise=4,
+            reference_concentration=10,
             slope_upland=0.005,
             bay_fetch_initial=3000,
             wind_speed=5,
@@ -227,14 +227,21 @@ class BarrierBMFT:
         # ===================================================================================================================================================================================================================================
         # Add marsh from PyBMFT-C to Barrier3D
 
+        # plt.figure()
+        # plt.plot(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1])
+        # plt.title("PyBMFTC BACK-BARRIER, TS " + str(time_step))
+        # plt.figure()
+        # plt.plot(self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step - 1])
+        # plt.title("PyBMFTC MAINLAND, TS " + str(time_step))
+
         # Extract and convert marsh elevation from PyBMFT-C
-        marsh_transect = self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_m: self._bmftc_BB.x_f + 1]  # Marsh elevation from PyBMFT-C
+        marsh_transect = self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m: self._bmftc_BB.x_f + 1]  # Marsh elevation from PyBMFT-C
         len_marsh_transect = 10 * ((len(marsh_transect) + 5) // 10)  # Cross-shore length of marsh rounded to nearest dam
         x = np.linspace(1, len(marsh_transect) / 10, num=int((len_marsh_transect / 10)))
         xp = np.linspace(1, len(marsh_transect) / 10, num=int(len(marsh_transect)))
         marsh_transect = np.interp(x, xp, marsh_transect)  # Interpolate marsh elevation from m to dam in the horizontal dimension
-        marsh_transect -= (self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step - 1] + self._bmftc_BB.amp)  # Make marsh elevation relative to MHW datum
-        marsh_transect /= 10  # Convert from m to dam in the vertial dimension
+        marsh_transect = marsh_transect - (self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step - 1] + self._bmftc_BB.amp)  # Make marsh elevation relative to MHW datum  # TS-1 or TS???
+        marsh_transect = marsh_transect / 10  # Convert from m to dam in the vertial dimension
         marsh_transect = np.flip(marsh_transect)
         x_m_b3d = math.ceil(self._barrier3d.model.InteriorWidth_AvgTS[-1]) + len(marsh_transect)  # Cross-shore location of back-barrier marsh edge in InteriorDomain
         StartDomainWidth = np.shape(self._barrier3d.model.InteriorDomain)[0]  # Width of interior domain from last time step
@@ -300,6 +307,10 @@ class BarrierBMFT:
 
         self._barrier3d.model.InteriorDomain = NewDomain
 
+        # plt.figure()
+        # plt.plot(BarrierMarshTransect * 10)
+        # plt.title("BarrierMarshTransect, TS " + str(time_step))
+
         # elevFig1 = plt.figure(figsize=(6, 18))
         # ax = elevFig1.add_subplot(111)
         # ax.matshow(self._barrier3d.model.InteriorDomain * 10, origin="lower", cmap="terrain", vmin=-1.1, vmax=4.0)
@@ -342,6 +353,12 @@ class BarrierBMFT:
 
         b3d_transect = np.mean(self._barrier3d.model.InteriorDomain, axis=1) * 10  # Take average across alongshore dimension, convert to m (vertical dimension)
         print("B3D Transect Length:", len(b3d_transect))
+
+
+        # plt.figure()
+        # plt.plot(b3d_transect)
+        # plt.title("b3d_transect, TS " + str(time_step))
+        # plt.show()
 
         x = np.linspace(1, len(b3d_transect) * 10, num=len(b3d_transect) * 10)
         xp = np.linspace(1, len(b3d_transect), num=len(b3d_transect)) * 10
