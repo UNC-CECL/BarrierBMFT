@@ -174,17 +174,33 @@ plt.plot((barrierbmft.barrier3d.model.x_b_TS - barrierbmft.barrier3d.model.x_b_T
 plt.xlabel("Time [yr]")
 plt.ylabel("Barrier3D Back-Barrier Shoreline Position [m]")
 
+
 # ===========
 plt.figure()
 fig = plt.gcf()
-fig.set_size_inches(7, 12)
-plt.subplot(2, 1, 1)
+fig.set_size_inches(7, 15)
+plt.subplot(4, 1, 1)
 plt.plot(barrierbmft.x_f_TS)
-plt.ylabel("BMFTC x_f [m]")
-plt.subplot(2, 1, 2)
+plt.ylabel("BMFTC BB x_f [m]")
+plt.subplot(4, 1, 2)
 plt.plot(barrierbmft.x_m_TS)
 plt.xlabel("Time [yr]")
-plt.ylabel("BMFTC x_m [m]")
+plt.ylabel("BMFTC BB x_m [m]")
+plt.subplot(4, 1, 3)
+plt.plot(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.xlabel("Time [yr]")
+plt.ylabel("BMFTC BB Marsh Edge [m]")
+plt.subplot(4, 1, 4)
+plt.plot(barrierbmft.bmftc_ML.Marsh_edge[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear + 1])
+plt.xlabel("Time [yr]")
+plt.ylabel("BMFTC ML Marsh Edge [m]")
+
+
+# ===========
+plt.figure()
+plt.plot(barrierbmft.cumul_len_change)
+plt.xlabel("Time [yr]")
+plt.ylabel("Cumulative Length Gain/Loss From Interpolation Rounding [m]")
 
 
 # ===========

@@ -91,7 +91,7 @@ class BarrierBMFT:
         # Mainland shoreline
         self._bmftc_ML = Bmftc(
             name="mainland",
-            time_step_count=15,
+            time_step_count=30,
             relative_sea_level_rise=4,
             reference_concentration=10,
             slope_upland=0.005,
@@ -106,7 +106,7 @@ class BarrierBMFT:
         # Back-barier shoreline
         self._bmftc_BB = Bmftc(
             name="back-barrier",
-            time_step_count=15,
+            time_step_count=30,
             relative_sea_level_rise=4,
             reference_concentration=10,
             slope_upland=0.005,
@@ -138,11 +138,12 @@ class BarrierBMFT:
         self._prev_x_s = self._barrier3d.model.x_s
         self._x_f_TS = []
         self._x_m_TS = []
-        #
+
         initial_BB_subaerial_width = self._bmftc_BB.B - self._bmftc_BB.x_f
         self._x_s_initial = self._barrier3d.model.x_s  # Initial x-position of shoreline in Barrier3D
         self._x_s_offset = initial_BB_subaerial_width - (self._barrier3d.model.InteriorWidth_AvgTS[-1] * 10)  # Initial location of B in PyBMFT-C relative to x_s_initial in Barrier3D
         self._x_s_bmftc = self._bmftc_BB.x_f + self._barrier3d.model.InteriorWidth_AvgTS[-1] * 10
+        self._cumul_len_change = [0]
 
     # =======================================================================================================================================================================================================================================
     # =======================================================================================================================================================================================================================================
@@ -227,16 +228,12 @@ class BarrierBMFT:
         # ===================================================================================================================================================================================================================================
         # Add marsh from PyBMFT-C to Barrier3D
 
-        # plt.figure()
-        # plt.plot(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1])
-        # plt.title("PyBMFTC BACK-BARRIER, TS " + str(time_step))
-        # plt.figure()
-        # plt.plot(self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step - 1])
-        # plt.title("PyBMFTC MAINLAND, TS " + str(time_step))
-
         # Extract and convert marsh elevation from PyBMFT-C
         marsh_transect = self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m: self._bmftc_BB.x_f + 1]  # Marsh elevation from PyBMFT-C
+
+        # Old Method
         len_marsh_transect = 10 * ((len(marsh_transect) + 5) // 10)  # Cross-shore length of marsh rounded to nearest dam
+        self._cumul_len_change.append(self._cumul_len_change[-1] + (len_marsh_transect - len(marsh_transect)))
         x = np.linspace(1, len(marsh_transect) / 10, num=int((len_marsh_transect / 10)))
         xp = np.linspace(1, len(marsh_transect) / 10, num=int(len(marsh_transect)))
         marsh_transect = np.interp(x, xp, marsh_transect)  # Interpolate marsh elevation from m to dam in the horizontal dimension
@@ -270,7 +267,6 @@ class BarrierBMFT:
             self._barrier3d.model._DeadPercentCover = np.vstack([self._barrier3d.model.DeadPercentCover, Zero_Addition])
             self._barrier3d.model._BurialDomain = np.vstack([self._barrier3d.model.BurialDomain, Zero_Addition])
             self._barrier3d.model._ShrubDomainAll = self._barrier3d.model.ShrubDomainFemale + self._barrier3d.model.ShrubDomainMale
-            print("ADD", addRows)
         elif addRows < 0:
             # Update interior domain size
             NewDomain = self._barrier3d.model.InteriorDomain[:addRows, :]
@@ -282,10 +278,8 @@ class BarrierBMFT:
             self._barrier3d.model._DeadPercentCover = self._barrier3d.model.DeadPercentCover[:addRows, :]
             self._barrier3d.model._BurialDomain = self._barrier3d.model.BurialDomain[:addRows, :]
             self._barrier3d.model._ShrubDomainAll = self._barrier3d.model._ShrubDomainFemale + self._barrier3d.model._ShrubDomainMale
-            print("SUBTRACT", addRows)
         else:
             NewDomain = self._barrier3d.model.InteriorDomain  # Domains stay same size
-            print("NO CHANGE")
 
         # Update Marsh In Barrier3D
         x_marsh = int(round(np.average(InteriorWidth))) + len(marsh_transect) + 1  # [dam] Cross-shore location of marsh edge relative to interior domain
@@ -307,10 +301,6 @@ class BarrierBMFT:
 
         self._barrier3d.model.InteriorDomain = NewDomain
 
-        # plt.figure()
-        # plt.plot(BarrierMarshTransect * 10)
-        # plt.title("BarrierMarshTransect, TS " + str(time_step))
-
         # elevFig1 = plt.figure(figsize=(6, 18))
         # ax = elevFig1.add_subplot(111)
         # ax.matshow(self._barrier3d.model.InteriorDomain * 10, origin="lower", cmap="terrain", vmin=-1.1, vmax=4.0)
@@ -320,19 +310,6 @@ class BarrierBMFT:
         # ===================================================================================================================================================================================================================================
         # Advance Barrier3D
         self._barrier3d.update()
-
-        # plt.figure()
-        # plt.plot(self.bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, :], c='black')
-        # plt.xlabel("Distance")
-        # plt.ylabel("Back-Barrier Elevation [m MSL]")
-        # plt.title("Timestep " + str(time_step))
-
-
-        # ===================================================================================================================================================================================================================================
-        # ===================================================================================================================================================================================================================================
-        # Adjust fetch and barrier-bay shoreline position in PyBMFT-C according to back-barrier shoreline change (i.e. overwash deposition)
-        # delta_x_b_b3d = (self._barrier3d.model.x_b_TS[-1] - self._barrier3d.model.x_b_TS[-2]) * 10  # [m] Calculate back-barrier shoreline change from Barrier3D; (+) landward movement, (-) seaward movement
-        # self._bmftc_BB._x_f = self._bmftc_BB.x_f - int(math.ceil(delta_x_b_b3d))  # Bay-barrier shoreline  # IR 9Sep21: ceil or round?
 
 
         # ===================================================================================================================================================================================================================================
@@ -344,21 +321,9 @@ class BarrierBMFT:
         self._x_s_offset += (shoreline_change * 10)
         self._x_s_bmftc2 = self._x_s_bmftc - (self._barrier3d.model.x_s_TS[-1] - self._barrier3d.model.x_s_TS[-2]) * 10
         self._x_s_bmftc = self._x_s_bmftc2 - (self._barrier3d.model.x_s - self._barrier3d.model.x_s_TS[-1]) * 10
-        # print()
-        # print(" location", shoreline_location)
-        # print(" change", shoreline_change)
-        # print(" offset", self._x_s_offset)
-        # print(" position", self._x_s_bmftc)
         self._prev_x_s = self._barrier3d.model.x_s
 
         b3d_transect = np.mean(self._barrier3d.model.InteriorDomain, axis=1) * 10  # Take average across alongshore dimension, convert to m (vertical dimension)
-        print("B3D Transect Length:", len(b3d_transect))
-
-
-        # plt.figure()
-        # plt.plot(b3d_transect)
-        # plt.title("b3d_transect, TS " + str(time_step))
-        # plt.show()
 
         x = np.linspace(1, len(b3d_transect) * 10, num=len(b3d_transect) * 10)
         xp = np.linspace(1, len(b3d_transect), num=len(b3d_transect)) * 10
@@ -371,7 +336,6 @@ class BarrierBMFT:
             x_m = np.where(b3d_transect < self._barrier3d.model.SL - self._bmftc_BB.amp)[0][0]  # Is this the best rule for finding new marsh edge location?
         else:
             x_m = len(b3d_transect)
-
 
         old_x_f = self._bmftc_BB.x_f
         old_x_m = self._bmftc_BB.x_m
@@ -391,18 +355,10 @@ class BarrierBMFT:
         self._x_f_TS.append(self._bmftc_BB.x_f)
         self._x_m_TS.append(self._bmftc_BB.x_m)
 
-
-        # print("x_m:", self._bmftc_BB.x_m)
         print("x_m old-new:", old_x_m - self._bmftc_BB.x_m)
-        # print("b3d x_f", x_f)
-        # print("b3d x_m", x_m)
         print("x_f old-new:", old_x_f - self._bmftc_BB.x_f)
         # print("bfo old-new:", old_bfo - self._bmftc_BB.bfo)
         # print("x_b old-new:", old_ML_xb - self._bmftc_ML.x_b)
-        # print("bfoML old-new:", old_ML_bfo - self._bmftc_ML.bfo)
-        # if len(self._x_f_TS) > 1:
-        #     print("x_f old-new2:", self._x_f_TS[-2] - self._x_f_TS[-1])
-
 
         b3d_transect = b3d_transect + self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step - 1] + self._bmftc_BB.amp + (self._bmftc_BB.RSLRi / 1000)  # Convert vertical datums
 
@@ -428,26 +384,6 @@ class BarrierBMFT:
         # Store mass of overwash mineral sediment deposited across transect
         self._elevation_change_bmftcBB = self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, :] - self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, :]
         self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, :] += (self._elevation_change_bmftcBB * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash /time_step -1?
-
-
-
-
-
-        # plt.figure()
-        # plt.plot(self.bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, :], c='red')
-        # plt.scatter(self._bmftc_BB.x_f, self.bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_f])
-        # plt.scatter(self._bmftc_BB.x_m, self.bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_m])
-        # plt.title("Elevation BarrierBMFTC [m] " + str(time_step))
-        # plt.show()
-
-        # plt.figure()
-        # plt.plot(self._elevation_change_bmftcBB)
-        # plt.title("elev diff")
-        #
-        # plt.figure()
-        # plt.plot(self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, :])
-        # plt.title("min dep OW")
-        # plt.show()
 
 
     @property
@@ -477,3 +413,7 @@ class BarrierBMFT:
     @property
     def x_m_TS(self):
         return self._x_m_TS
+
+    @property
+    def cumul_len_change(self):
+        return self._cumul_len_change
