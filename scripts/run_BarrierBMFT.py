@@ -204,6 +204,14 @@ plt.ylabel("Cumulative Length Gain/Loss From Interpolation Rounding [m]")
 
 
 # ===========
+plt.figure()
+plt.plot(barrierbmft.delta_fetch_BB_TS, c="blue")
+plt.plot(barrierbmft.delta_fetch_ML_TS, c="red")
+plt.xlabel("Time [yr]")
+plt.ylabel("Change in Marsh Edge Location from Bay Processes [m]")
+
+
+# ===========
 # Barrier Elevation (end)
 # B3Dfunc.plot_ElevTMAX(
 #     barrierbmft.bmftc.dur,
@@ -281,3 +289,37 @@ plt.show()
 # imageio.mimsave("Output/SimFrames/elev.gif", frames, "GIF-FI")
 # print()
 # print("[ * GIF successfully generated * ]")
+
+
+# ===========
+# Transect Animation
+
+for t in range(int(barrierbmft.bmftc.dur)):
+
+    BB_transect = np.flip(barrierbmft.bmftc_BB.elevation[barrierbmft.bmftc_BB.startyear + t, barrierbmft.bmftc_BB.x_m:])
+    ML_transect = barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_BB.startyear + t, :]
+    whole_transect = np.append(BB_transect, ML_transect)
+
+    # Plot and save
+    transectFig = plt.figure(figsize=(12, 6))
+    plt.plot(whole_transect, c="black")
+    plt.ylim(-2, 3)
+    plt.xlabel("Cross-shore Distance (m)")
+    plt.ylabel("Elevation (m)")
+    plt.tight_layout()
+    timestr = "Time = " + str(t) + " yrs"
+    newpath = "Output/SimFrames/"
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
+    plt.text(1, 1, timestr)
+    name = "Output/SimFrames/transect_" + str(t)
+    transectFig.savefig(name)  # dpi=200
+    plt.close(transectFig)
+
+frames = []
+for filenum in range(int(barrierbmft.bmftc.dur)):
+    filename = "Output/SimFrames/transect_" + str(filenum) + ".png"
+    frames.append(imageio.imread(filename))
+imageio.mimsave("Output/SimFrames/transect.gif", frames, "GIF-FI")
+print()
+print("[ * GIF successfully generated * ]")
