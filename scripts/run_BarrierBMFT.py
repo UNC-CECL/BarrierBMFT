@@ -68,6 +68,8 @@ plt.figure()
 plt.plot(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear])
 plt.xlabel("Time [yr]")
 plt.ylabel("Bay Fetch [m]")
+plt.rcParams.update({"font.size": 8})
+
 
 # ===========
 plt.figure()
@@ -108,7 +110,7 @@ plt.ylabel("Difference [m]")
 plt.figure()
 fig = plt.gcf()
 fig.set_size_inches(14, 18)
-plt.rcParams.update({"font.size": 12})
+# plt.rcParams.update({"font.size": 12})
 
 # Interior Width
 plt.subplot(6, 1, 1)
@@ -301,9 +303,9 @@ for t in range(int(barrierbmft.bmftc.dur)):
     whole_transect = np.append(BB_transect, ML_transect)
 
     # Plot and save
-    transectFig = plt.figure(figsize=(12, 6))
+    transectFig = plt.figure(figsize=(15, 7))
     plt.plot(whole_transect, c="black")
-    plt.ylim(-2, 3)
+    plt.ylim(-2, 3.5)
     plt.xlabel("Cross-shore Distance (m)")
     plt.ylabel("Elevation (m)")
     plt.tight_layout()
