@@ -19,9 +19,7 @@ from barrier3d.tools import plot as B3Dfunc
 
 # ==================================================================================================================================================================================
 # Create an instance of the BMI class
-barrierbmft = BarrierBMFT(
-    coupling_on=True
-)
+barrierbmft = BarrierBMFT()
 
 
 # ==================================================================================================================================================================================
@@ -171,46 +169,40 @@ plt.ylabel("Elevation [m MSL]")
 
 
 # ===========
-plt.figure()
-plt.plot((barrierbmft.barrier3d.model.x_b_TS - barrierbmft.barrier3d.model.x_b_TS[0]) * 10)
-plt.xlabel("Time [yr]")
-plt.ylabel("Barrier3D Back-Barrier Shoreline Position [m]")
+# plt.figure()
+# plt.plot((barrierbmft.barrier3d.model.x_b_TS - barrierbmft.barrier3d.model.x_b_TS[0]) * 10)
+# plt.xlabel("Time [yr]")
+# plt.ylabel("Barrier3D Back-Barrier Shoreline Position [m]")
 
 
 # ===========
 plt.figure()
 fig = plt.gcf()
 fig.set_size_inches(7, 15)
-plt.subplot(4, 1, 1)
-plt.plot(barrierbmft.x_f_TS)
-plt.ylabel("BMFTC BB x_f [m]")
-plt.subplot(4, 1, 2)
-plt.plot(barrierbmft.x_m_TS)
-plt.xlabel("Time [yr]")
-plt.ylabel("BMFTC BB x_m [m]")
-plt.subplot(4, 1, 3)
+plt.subplot(2, 1, 1)
 plt.plot(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
 plt.xlabel("Time [yr]")
 plt.ylabel("BMFTC BB Marsh Edge [m]")
-plt.subplot(4, 1, 4)
+plt.subplot(2, 1, 2)
 plt.plot(barrierbmft.bmftc_ML.Marsh_edge[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear + 1])
 plt.xlabel("Time [yr]")
 plt.ylabel("BMFTC ML Marsh Edge [m]")
 
 
 # ===========
-plt.figure()
-plt.plot(barrierbmft.cumul_len_change)
-plt.xlabel("Time [yr]")
-plt.ylabel("Cumulative Length Gain/Loss From Interpolation Rounding [m]")
+# plt.figure()
+# plt.plot(barrierbmft.cumul_len_change)
+# plt.xlabel("Time [yr]")
+# plt.ylabel("Cumulative Length Gain/Loss From Interpolation Rounding [m]")
 
 
 # ===========
-plt.figure()
-plt.plot(barrierbmft.delta_fetch_BB_TS, c="blue")
-plt.plot(barrierbmft.delta_fetch_ML_TS, c="red")
-plt.xlabel("Time [yr]")
-plt.ylabel("Change in Marsh Edge Location from Bay Processes [m]")
+# plt.figure()
+# plt.plot(barrierbmft.delta_fetch_BB_TS, c="blue")
+# plt.plot(barrierbmft.delta_fetch_ML_TS, c="red")
+# plt.xlabel("Time [yr]")
+# plt.ylabel("Change in Marsh Edge Location from Bay Processes [m]")
+# plt.legend(["Back-Barrier", "Mainland"])
 
 
 # ===========
@@ -226,9 +218,6 @@ plt.ylabel("Change in Marsh Edge Location from Bay Processes [m]")
 #     barrierbmft.barrier3d.model._DuneWidth,
 # )
 
-
-# ===========
-plt.show()
 
 # ===========
 # Barrier Animation
@@ -298,13 +287,22 @@ plt.show()
 
 for t in range(int(barrierbmft.bmftc.dur)):
 
-    BB_transect = np.flip(barrierbmft.bmftc_BB.elevation[barrierbmft.bmftc_BB.startyear + t, barrierbmft.bmftc_BB.x_m:])
-    ML_transect = barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_BB.startyear + t, :]
+    # Combine transects
+    BB_transect = np.flip(barrierbmft.bmftc_BB.elevation[barrierbmft.bmftc_BB.startyear + t - 1, barrierbmft.bmftc_BB.startyear + int(barrierbmft.bmftc_BB.Marsh_edge[t]):])
+    ML_transect = barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.startyear + t - 1, :]
     whole_transect = np.append(BB_transect, ML_transect)
+
+    # Extract marsh & forest locations to plot
+    x_forest = [barrierbmft.bmftc_BB.B - int(barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear + t]), len(BB_transect) + int(barrierbmft.bmftc_ML.Forest_edge[barrierbmft.bmftc_ML.startyear + t])]
+    x_marsh = [len(BB_transect) - 1, len(BB_transect) + int(barrierbmft.bmftc_ML.Marsh_edge[barrierbmft.bmftc_ML.startyear + t])]
+    y_forest = whole_transect[x_forest]
+    y_marsh = whole_transect[x_marsh]
 
     # Plot and save
     transectFig = plt.figure(figsize=(15, 7))
     plt.plot(whole_transect, c="black")
+    plt.scatter(x_forest, y_forest, c="green")
+    plt.scatter(x_marsh, y_marsh, c="brown")
     plt.ylim(-2, 3.5)
     plt.xlabel("Cross-shore Distance (m)")
     plt.ylabel("Elevation (m)")
@@ -313,7 +311,7 @@ for t in range(int(barrierbmft.bmftc.dur)):
     newpath = "Output/SimFrames/"
     if not os.path.exists(newpath):
         os.makedirs(newpath)
-    plt.text(1, 1, timestr)
+    plt.text(-1.5, 1, timestr)
     name = "Output/SimFrames/transect_" + str(t)
     transectFig.savefig(name)  # dpi=200
     plt.close(transectFig)
@@ -325,3 +323,7 @@ for filenum in range(int(barrierbmft.bmftc.dur)):
 imageio.mimsave("Output/SimFrames/transect.gif", frames, "GIF-FI")
 print()
 print("[ * GIF successfully generated * ]")
+
+
+# ===========
+plt.show()
