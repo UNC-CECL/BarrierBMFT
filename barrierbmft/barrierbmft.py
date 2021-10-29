@@ -93,32 +93,34 @@ class BarrierBMFT:
         # Mainland shoreline
         self._bmftc_ML = Bmftc(
             name="mainland",
-            time_step_count=30,
-            relative_sea_level_rise=4,
-            reference_concentration=50,
+            time_step_count=50,
+            relative_sea_level_rise=5,
+            reference_concentration=20,
             slope_upland=0.005,
             bay_fetch_initial=3000,
             wind_speed=5,
             seagrass_on=False,
             forest_on=True,
             filename_equilbaydepth="Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",  # "Input/PyBMFT-C/Equilibrium Bay Depth.mat",
-            filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",  # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat",
+            # filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat",  # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
+            filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
             marsh_width_initial=1000
         )
 
         # Back-barier shoreline
         self._bmftc_BB = Bmftc(
             name="back-barrier",
-            time_step_count=30,
-            relative_sea_level_rise=4,
-            reference_concentration=50,
+            time_step_count=50,
+            relative_sea_level_rise=5,
+            reference_concentration=20,
             slope_upland=0.005,
             bay_fetch_initial=3000,
             wind_speed=5,
             seagrass_on=False,
             forest_on=False,
-            filename_equilbaydepth="Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",  # "Input/PyBMFT-C/Equilibrium Bay Depth.mat",
-            filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",  # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat",
+            filename_equilbaydepth="Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",
+            # filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat",
+            filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
             marsh_width_initial=1000,
         )
 
@@ -390,13 +392,19 @@ class BarrierBMFT:
             # Store mass of overwash mineral sediment deposited across transect
             self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, -add - len(elevation_change_b3d): -add] += (elevation_change_b3d * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash)
 
-        # Update bfo and b parameters
+        # Update x_m, x_f, bfo, and b parameters
         x_m = np.where(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, :] > (self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step]))[0][0]  # Find new marsh edge
         delta_x_m_BB = x_m - self._bmftc_BB.x_m  # Change in x-location of marsh edge from Barrier3D; (+) = erosion, (-) = progradation
 
         self._bmftc_BB._bfo = self._bmftc_BB.bfo + delta_x_m_BB  # Determine change in BB fetch
         self._bmftc_ML._bfo = self._bmftc_ML.bfo + delta_x_m_BB  # Determine change in ML fetch
         self._bmftc_ML._x_b = self._bmftc_ML.x_b - delta_x_m_BB  # Determine change in ML b
+
+        self._bmftc_BB._x_m = math.ceil(self._bmftc_BB.bfo) + math.ceil(self._bmftc_BB.x_b)  # IR addition, recalculate after coupling (x_m is calculated from x_b=0)
+        self._bmftc_BB._x_f = np.where(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, :] > self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] + self._bmftc_BB.amp - self._bmftc_BB.Dmin + 0.025)[0][0]
+
+        self._bmftc_BB.Marsh_edge[self._bmftc_BB.startyear + time_step] = self._bmftc_BB.x_m
+        self._bmftc_BB.Forest_edge[self._bmftc_BB.startyear + time_step] = self._bmftc_BB.x_f
 
 
         # ===================================================================================================================================================================================================================================

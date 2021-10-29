@@ -203,65 +203,65 @@ plt.ylabel("BMFTC ML Marsh Edge [m]")
 
 # ===========
 # Barrier Animation
-# BeachWidth = 6
-# OriginY = 10
-# AniDomainWidth = int(
-#     max(barrierbmft.barrier3d.model.InteriorWidth_AvgTS) + BeachWidth + abs(barrierbmft.barrier3d.model.ShorelineChange) + OriginY + 15 + (marsh_width_TS[-1] / 10))  # was +15
-#
-# for t in range(barrierbmft.barrier3d.model.TMAX):
-#     # Build beach elevation domain
-#     BeachDomain = np.zeros([BeachWidth, barrierbmft.barrier3d.model.BarrierLength])
-#     berm = math.ceil(BeachWidth * 0.65)
-#     BeachDomain[berm: BeachWidth + 1, :] = barrierbmft.barrier3d.model.BermEl
-#     add = (barrierbmft.barrier3d.model.BermEl - barrierbmft.barrier3d.model.SL) / berm
-#     for i in range(berm):
-#         BeachDomain[i, :] = barrierbmft.barrier3d.model.SL + add * i
-#
-#     # Make animation frame domain
-#     Domain = barrierbmft.barrier3d.model.DomainTS[t] * 10
-#     Dunes = (barrierbmft.barrier3d.model.DuneDomain[t, :, :] + barrierbmft.barrier3d.model.BermEl) * 10
-#     Dunes = np.rot90(Dunes)
-#     Dunes = np.flipud(Dunes)
-#     Beach = BeachDomain * 10
-#     Domain = np.vstack([Beach, Dunes, Domain])
-#     Domain[Domain < 0] = -1
-#     AnimateDomain = np.ones([AniDomainWidth + 1, barrierbmft.barrier3d.model.BarrierLength]) * -1
-#     widthTS = len(Domain)
-#     scts = [(x - barrierbmft.barrier3d.model.x_s_TS[0]) for x in barrierbmft.barrier3d.model.x_s_TS]
-#     if scts[t] >= 0:
-#         OriginTstart = OriginY + math.floor(scts[t])
-#     else:
-#         OriginTstart = OriginY + math.ceil(scts[t])
-#     OriginTstop = OriginTstart + widthTS
-#     AnimateDomain[OriginTstart:OriginTstop, 0: barrierbmft.barrier3d.model.BarrierLength] = Domain
-#
-#     # Plot and save
-#     elevFig1 = plt.figure(figsize=(7, 12))
-#     ax = elevFig1.add_subplot(111)
-#     cax = ax.matshow(AnimateDomain, origin="lower", cmap="terrain", vmin=-1.1, vmax=4.0)  # , interpolation='gaussian') # analysis:ignore
-#
-#     ax.xaxis.set_ticks_position("bottom")
-#     # cbar = elevFig1.colorbar(cax)
-#     plt.xlabel("Alongshore Distance (dam)")
-#     plt.ylabel("Cross-Shore Diatance (dam)")
-#     plt.title("Interior Elevation")
-#     plt.tight_layout()
-#     timestr = "Time = " + str(t) + " yrs"
-#     newpath = "Output/SimFrames/"
-#     if not os.path.exists(newpath):
-#         os.makedirs(newpath)
-#     plt.text(1, 1, timestr)
-#     name = "Output/SimFrames/elev_" + str(t)
-#     elevFig1.savefig(name)  # dpi=200
-#     plt.close(elevFig1)
-#
-# frames = []
-# for filenum in range(barrierbmft.barrier3d.model.TMAX):
-#     filename = "Output/SimFrames/elev_" + str(filenum) + ".png"
-#     frames.append(imageio.imread(filename))
-# imageio.mimsave("Output/SimFrames/elev.gif", frames, "GIF-FI")
-# print()
-# print("[ * GIF successfully generated * ]")
+BeachWidth = 6
+OriginY = 10
+AniDomainWidth = int(
+    max(barrierbmft.barrier3d.model.InteriorWidth_AvgTS) + BeachWidth + abs(barrierbmft.barrier3d.model.ShorelineChange) + OriginY + 15 + (marsh_width_TS[-1] / 10))  # was +15
+
+for t in range(barrierbmft.barrier3d.model.TMAX):
+    # Build beach elevation domain
+    BeachDomain = np.zeros([BeachWidth, barrierbmft.barrier3d.model.BarrierLength])
+    berm = math.ceil(BeachWidth * 0.65)
+    BeachDomain[berm: BeachWidth + 1, :] = barrierbmft.barrier3d.model.BermEl
+    add = (barrierbmft.barrier3d.model.BermEl - barrierbmft.barrier3d.model.SL) / berm
+    for i in range(berm):
+        BeachDomain[i, :] = barrierbmft.barrier3d.model.SL + add * i
+
+    # Make animation frame domain
+    Domain = barrierbmft.barrier3d.model.DomainTS[t] * 10
+    Dunes = (barrierbmft.barrier3d.model.DuneDomain[t, :, :] + barrierbmft.barrier3d.model.BermEl) * 10
+    Dunes = np.rot90(Dunes)
+    Dunes = np.flipud(Dunes)
+    Beach = BeachDomain * 10
+    Domain = np.vstack([Beach, Dunes, Domain])
+    # Domain[Domain < -0.7] = -2
+    AnimateDomain = np.ones([AniDomainWidth + 1, barrierbmft.barrier3d.model.BarrierLength]) * -1
+    widthTS = len(Domain)
+    scts = [(x - barrierbmft.barrier3d.model.x_s_TS[0]) for x in barrierbmft.barrier3d.model.x_s_TS]
+    if scts[t] >= 0:
+        OriginTstart = OriginY + math.floor(scts[t])
+    else:
+        OriginTstart = OriginY + math.ceil(scts[t])
+    OriginTstop = OriginTstart + widthTS
+    AnimateDomain[OriginTstart:OriginTstop, 0: barrierbmft.barrier3d.model.BarrierLength] = Domain
+
+    # Plot and save
+    elevFig1 = plt.figure(figsize=(7, 12))
+    ax = elevFig1.add_subplot(111)
+    cax = ax.matshow(AnimateDomain, origin="lower", cmap="terrain", vmin=-2, vmax=4.0)  # , interpolation='gaussian') # analysis:ignore
+
+    ax.xaxis.set_ticks_position("bottom")
+    # cbar = elevFig1.colorbar(cax)
+    plt.xlabel("Alongshore Distance (dam)")
+    plt.ylabel("Cross-Shore Diatance (dam)")
+    plt.title("Interior Elevation")
+    plt.tight_layout()
+    timestr = "Time = " + str(t) + " yrs"
+    newpath = "Output/SimFrames/"
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
+    plt.text(1, 1, timestr)
+    name = "Output/SimFrames/elev_" + str(t)
+    elevFig1.savefig(name)  # dpi=200
+    plt.close(elevFig1)
+
+frames = []
+for filenum in range(barrierbmft.barrier3d.model.TMAX):
+    filename = "Output/SimFrames/elev_" + str(filenum) + ".png"
+    frames.append(imageio.imread(filename))
+imageio.mimsave("Output/SimFrames/elev.gif", frames, "GIF-FI")
+print()
+print("[ * GIF successfully generated * ]")
 
 # ===========
 # Transect Animation
@@ -296,7 +296,7 @@ for t in range(int(barrierbmft.bmftc.dur)):
     newpath = "Output/SimFrames/"
     if not os.path.exists(newpath):
         os.makedirs(newpath)
-    plt.text(-1.5, 1, timestr)
+    plt.text(0, 0, timestr)
     name = "Output/SimFrames/transect_" + str(t)
     transectFig.savefig(name)  # dpi=200
     plt.close(transectFig)
