@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the BMFT-C model (python version)
 
 Copyright Ian RB Reeves
-Last updated: 24 August 2021
+Last updated: 6 January 2022
 """
 
 import bisect
@@ -80,11 +80,16 @@ class BarrierBMFT:
 
     def __init__(
             self,
+            time_step_count=110,
+            relative_sea_level_rise=7,
+            reference_concentration=20,
+            slope_upland=0.001,
             bay_unit_slope=0.0004,  # Hog Bay (Finkelstein & Ferland, 1987)
             bay_unit_thickness=4.3,  # Hog Bay (Finkelstein & Ferland, 1987)
             bay_unit_fine=0.5,  # Hog Bay (Finkelstein & Ferland, 1987)
     ):
         """ Initialize Barrier3D and PyBMFT-C """
+
 
         # ===========================================
         # Initialize Model Classes
@@ -93,10 +98,10 @@ class BarrierBMFT:
         # Mainland shoreline
         self._bmftc_ML = Bmftc(
             name="mainland",
-            time_step_count=500,
-            relative_sea_level_rise=7,
-            reference_concentration=20,
-            slope_upland=0.001,
+            time_step_count=time_step_count,
+            relative_sea_level_rise=relative_sea_level_rise,
+            reference_concentration=reference_concentration,
+            slope_upland=slope_upland,
             bay_fetch_initial=3000,
             wind_speed=5,
             seagrass_on=False,
@@ -110,14 +115,14 @@ class BarrierBMFT:
         # Back-barier shoreline
         self._bmftc_BB = Bmftc(
             name="back-barrier",
-            time_step_count=500,
-            relative_sea_level_rise=7,
-            reference_concentration=20,
-            slope_upland=0.001,
+            time_step_count=time_step_count,
+            relative_sea_level_rise=relative_sea_level_rise,
+            reference_concentration=reference_concentration,
+            slope_upland=slope_upland,
             bay_fetch_initial=3000,
             wind_speed=5,
             seagrass_on=False,
-            forest_on=False,
+            forest_on=True,
             filename_equilbaydepth="Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",
             filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat",
             # filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
@@ -434,8 +439,12 @@ class BarrierBMFT:
             x_m_change = abs(math.floor(len(elevation_change_b3d) - (marsh_barrier_width - off)))  # Location of marsh edge within elevation_change_b3d
 
             sum_bay_dep = np.sum(elevation_change_b3d[:x_m_change])  # [m^3] Volume of overwash deposition into bay, i.e. landward of marsh edge
-            avg_marsh_elev = np.mean(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_m: self._bmftc_BB.x_f + 1])  # [m] Average elevatino of marsh from last timestep
+            avg_marsh_elev = np.mean(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step - 1, self._bmftc_BB.x_m: self._bmftc_BB.x_f + 1])  # [m] Average elevation of marsh from last timestep
             new_marsh_height = avg_marsh_elev - (self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] + self._bmftc_BB.amp - self._bmftc_BB.db)  # [m] Height of deposition needed to bring bay bottom up to avg marsh elevation
+
+            if np.isnan(sum_bay_dep) or np.isnan(avg_marsh_elev) or np.isnan(new_marsh_height):
+                print("Nan!!")
+
             progradation = int(math.floor(sum_bay_dep / new_marsh_height))  # [m] Amount of marsh progradation, in which all overwash dep in bay fills first bay cell, then second, and so on until no more sediment. Assumes overwash is not spread out over bay.
 
             if progradation > 0:
@@ -455,7 +464,7 @@ class BarrierBMFT:
 
             # Store mass of overwash mineral sediment deposited across transect
             self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, -off - len(elevation_change_b3d): -off] += (elevation_change_b3d * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash
-            self._bmftc_BB.organic_dep_autoch[self._bmftc_BB.startyear + time_step, -off - len(elevation_change_b3d): -off] += 1e-8
+            self._bmftc_BB.organic_dep_autoch[self._bmftc_BB.startyear + time_step, -off - len(elevation_change_b3d): -off] += 1e-5
 
         else:
             # Add elevation change from Barrier3D to elevation in PyBMFT-C

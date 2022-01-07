@@ -216,6 +216,7 @@ BBmarsh = widths[:, 1] / total_width
 bay = widths[:, 2] / total_width
 MLmarsh = widths[:, 3] / total_width
 forest = widths[:, 4] / total_width
+barrier_marsh = barrier + BBmarsh
 
 plt.figure(figsize=(15, 7))
 plt.plot(barrier, c="black")
@@ -223,9 +224,10 @@ plt.plot(BBmarsh, c="red")
 plt.plot(bay, c="blue")
 plt.plot(MLmarsh, c="yellow")
 plt.plot(forest, c="green")
+plt.plot(barrier_marsh, c="purple")
 plt.xlabel("Time [yr]")
 plt.ylabel("Proportion of Entire Landscape Width")
-plt.legend(["Barrier", "Back-Barrier Marsh", "Bay", "Mainland Marsh", "Forest"])
+plt.legend(["Barrier", "Back-Barrier Marsh", "Bay", "Mainland Marsh", "Forest", "Barrier + Back-Barrier Marsh"])
 
 
 
