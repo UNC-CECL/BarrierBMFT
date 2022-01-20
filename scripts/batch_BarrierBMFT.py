@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the PyBMFT-C model
 
 Copyright Ian RB Reeves
-Last updated: 6 January 2022
+Last updated: 20 January 2022
 """
 
 import time
@@ -23,15 +23,12 @@ from barrier3d.tools import plot as B3Dfunc
 # Define batch parameters
 
 Num = 1  # Number of runs at each combinations of parameter values
-SimDur = 10  # [Yr] Duration of each simulation
+SimDur = 100  # [Yr] Duration of each simulation
 
 # Parameter values
-# rslr = [2, 6, 10, 14, 18]
-# co = [10, 30, 50, 70, 90]
-# slope = [0.001, 0.003, 0.005, 0.007, 0.009]
-rslr = [2, 10, 18]
-co = [10, 50, 90]
-slope = [0.003]
+rslr = [1, 3, 5, 7, 9]
+co = [15, 30, 45, 60, 75]
+slope = [0.001]
 
 SimNum = len(rslr) * len(co) * len(slope)
 
@@ -56,10 +53,12 @@ ShorelineChange = np.zeros([Num, len(rslr), len(co), len(slope)])
 
 # Record start time
 Time = time.time()
-
+Sim = 0
 for r in range(len(rslr)):
     for c in range(len(co)):
         for s in range(len(slope)):
+
+            Sim += 1
 
             # Create an instance of the BMI class and set input parameter values
             barrierbmft = BarrierBMFT(
@@ -73,7 +72,7 @@ for r in range(len(rslr)):
             for time_step in range(int(barrierbmft.bmftc.dur)):
 
                 # Print time step to screen
-                print("\r", "Time Step: ", time_step, end="")
+                print("\r", "Time Step: ", time_step, " - Sim", Sim, " / ", SimNum, " - r", r, " c", c, end="")
 
                 # Run time step
                 barrierbmft.update(time_step)
@@ -84,11 +83,11 @@ for r in range(len(rslr)):
 
             # Calculate change in widths
             widths = barrierbmft.LandscapeTypeWidth_TS
-            barrier_w = widths[0, 0] - widths[-1, 0]
-            BBmarsh_w = widths[0, 1] - widths[-1, 1]
-            bay_w = widths[0, 2] - widths[-1, 2]
-            MLmarsh_w = widths[0, 3] - widths[-1, 3]
-            forest_w = widths[0, 4] - widths[-1, 4]
+            barrier_w = widths[-1, 0] - widths[0, 0]
+            BBmarsh_w = widths[-1, 1] - widths[0, 1]
+            bay_w = widths[-1, 2] - widths[0, 2]
+            MLmarsh_w = widths[-1, 3] - widths[0, 3]
+            forest_w = widths[-1, 4] - widths[0, 4]
 
             # Calculate shoreline change
             sc = int(barrierbmft.barrier3d.model.ShorelineChange)
@@ -100,6 +99,20 @@ for r in range(len(rslr)):
             MLMarshWidth[0, r, c, s] = MLmarsh_w
             ForestWidth[0, r, c, s] = forest_w
             ShorelineChange[0, r, c, s] = sc
+
+            # Save elevation array
+            whole_transect = []
+
+            for t in range(int(barrierbmft.bmftc.dur)):
+                BB_transect = np.flip(barrierbmft.bmftc_BB.elevation[barrierbmft.bmftc_BB.startyear + t - 1, int(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_ML.startyear + t]):])
+                if barrierbmft.x_b_TS_ML[t] < 0:
+                    ML_transect = np.append(np.ones([abs(int(barrierbmft.x_b_TS_ML[t]))]) * barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.startyear + t - 1, 1], barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.startyear + t - 1, :])
+                elif barrierbmft.x_b_TS_ML[t] > 0:
+                    ML_transect = barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.startyear + t - 1, int(barrierbmft.x_b_TS_ML[t]):]
+
+                whole_transect.append(np.append(BB_transect, ML_transect))  # Combine transects
+
+            np.save(directory + '/Sim' + str(Sim) + '_elevation.npy', whole_transect)
 
 # Save batch data arrays
 np.save(directory + '/Widths_Barrier.npy', BarrierWidth)

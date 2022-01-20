@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the PyBMFT-C model
 
 Copyright Ian RB Reeves
-Last updated: 17 August 2021
+Last updated: 20 January 2021
 """
 
 import time
@@ -65,30 +65,45 @@ plt.show()
 # plt.xlabel("Distance")
 # plt.ylabel("Mainland Elevation [m MSL]")
 
-# ===========
 plt.figure()
-plt.plot(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear])
-plt.xlabel("Time [yr]")
-plt.ylabel("Bay Fetch [m]")
-plt.rcParams.update({"font.size": 11})
+for t in range(barrierbmft.bmftc_BB.startyear, barrierbmft.bmftc_BB.endyear, 5):
+    plt.plot(barrierbmft.bmftc_BB.elevation[t, :])
+plt.xlabel("Distance")
+plt.ylabel("Elevation [m MSL]")
+plt.title("Back-Barrier Elevation")
+
+plt.figure()
+for t in range(barrierbmft.bmftc_ML.startyear, barrierbmft.bmftc_ML.endyear, 5):
+    plt.plot(barrierbmft.bmftc_ML.elevation[t, :])
+plt.xlabel("Distance")
+plt.ylabel("Elevation [m MSL]")
+plt.title("Mainland Elevation")
+
 
 # ===========
-plt.figure()
-fig = plt.gcf()
-fig.set_size_inches(7, 16)
-plt.subplot(3, 1, 1)
-marsh_width_TS = barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear] - barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear]
-plt.plot(marsh_width_TS)
-plt.xlabel("Time [yr]")
-plt.ylabel("Back-Barrier Marsh Width [m]")
-plt.subplot(3, 1, 2)
-plt.plot(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear])
-plt.xlabel("Time [yr]")
-plt.ylabel("Back-Barrier Marsh Edge Location [m]")
-plt.subplot(3, 1, 3)
-plt.plot(barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear])
-plt.xlabel("Time [yr]")
-plt.ylabel("PyBMFT-C Back-Barrier Forest Edge Location [m]")
+# plt.figure()
+# plt.plot(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear])
+# plt.xlabel("Time [yr]")
+# plt.ylabel("Bay Fetch [m]")
+# plt.rcParams.update({"font.size": 11})
+
+# ===========
+# plt.figure()
+# fig = plt.gcf()
+# fig.set_size_inches(7, 16)
+# plt.subplot(3, 1, 1)
+# marsh_width_TS = barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear] - barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear]
+# plt.plot(marsh_width_TS)
+# plt.xlabel("Time [yr]")
+# plt.ylabel("Back-Barrier Marsh Width [m]")
+# plt.subplot(3, 1, 2)
+# plt.plot(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear])
+# plt.xlabel("Time [yr]")
+# plt.ylabel("Back-Barrier Marsh Edge Location [m]")
+# plt.subplot(3, 1, 3)
+# plt.plot(barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear])
+# plt.xlabel("Time [yr]")
+# plt.ylabel("PyBMFT-C Back-Barrier Forest Edge Location [m]")
 
 # ===========
 plt.figure()
@@ -170,13 +185,17 @@ plt.figure()
 fig = plt.gcf()
 fig.set_size_inches(7, 15)
 plt.subplot(2, 1, 1)
-plt.plot(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.plot(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1], label="Back-Barrier")
+plt.plot(barrierbmft.bmftc_ML.Marsh_edge[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear + 1], label="Mainland")
 plt.xlabel("Time [yr]")
-plt.ylabel("BMFTC BB Marsh Edge [m]")
+plt.ylabel("Marsh Edge [m]")
+plt.legend()
 plt.subplot(2, 1, 2)
-plt.plot(barrierbmft.bmftc_ML.Marsh_edge[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear + 1])
+plt.plot(barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.plot(barrierbmft.bmftc_ML.Forest_edge[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear + 1])
 plt.xlabel("Time [yr]")
-plt.ylabel("BMFTC ML Marsh Edge [m]")
+plt.ylabel("'Forest' Edge [m]")
+
 
 # ===========
 # plt.figure()
@@ -218,11 +237,12 @@ MLmarsh = widths[:, 3] / total_width
 forest = widths[:, 4] / total_width
 barrier_marsh = barrier + BBmarsh
 
-plt.figure(figsize=(15, 7))
+plt.figure(figsize=(15, 15))
+plt.rcParams.update({"font.size": 14})
 plt.plot(barrier, c="black")
 plt.plot(BBmarsh, c="red")
 plt.plot(bay, c="blue")
-plt.plot(MLmarsh, c="yellow")
+plt.plot(MLmarsh, c="orange")
 plt.plot(forest, c="green")
 plt.plot(barrier_marsh, c="purple")
 plt.xlabel("Time [yr]")
@@ -315,10 +335,11 @@ for t in range(int(barrierbmft.bmftc.dur)):
 
     # Plot and save
     transectFig = plt.figure(figsize=(15, 7))
+    plt.rcParams.update({"font.size": 11})
     plt.plot(whole_transect, c="black")
     plt.scatter(x_forest, y_forest, c="green")
     plt.scatter(x_marsh, y_marsh, c="brown")
-    plt.ylim(-1.5, 4)
+    plt.ylim(-2.1, 4)
     plt.xlabel("Cross-shore Distance (m)")
     plt.ylabel("Elevation (m)")
     plt.tight_layout()
