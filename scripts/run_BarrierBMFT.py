@@ -134,7 +134,7 @@ fig = plt.gcf()
 fig.set_size_inches(14, 18)
 # plt.rcParams.update({"font.size": 12})
 
-# Interior Width
+# Bay Fetch
 plt.subplot(6, 1, 1)
 plt.plot(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear: barrierbmft.bmftc_ML.endyear])
 plt.ylabel("Bay Fetch [m]")
@@ -325,7 +325,7 @@ plt.legend(["Barrier", "Back-Barrier Marsh", "Bay", "Mainland Marsh", "Forest", 
 for t in range(int(barrierbmft.bmftc.dur)):
 
     # Combine transects
-    BB_transect = np.flip(barrierbmft.bmftc_BB.elevation[barrierbmft.bmftc_BB.startyear + t - 1, int(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_ML.startyear + t]):])
+    BB_transect = np.flip(barrierbmft.bmftc_BB.elevation[barrierbmft.bmftc_BB.startyear + t - 1, int(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear + t]):])
     if barrierbmft.x_b_TS_ML[t] < 0:
         ML_transect = np.append(np.ones([abs(int(barrierbmft.x_b_TS_ML[t]))]) * barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.startyear + t - 1, 1], barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.startyear + t - 1, :])
     elif barrierbmft.x_b_TS_ML[t] > 0:
