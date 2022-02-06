@@ -84,7 +84,7 @@ class BarrierBMFT:
 
     def __init__(
             self,
-            time_step_count=150,
+            time_step_count=50,
             relative_sea_level_rise=4,
             reference_concentration=30,
             slope_upland=0.005,
@@ -104,7 +104,7 @@ class BarrierBMFT:
             reference_concentration=reference_concentration,
             slope_upland=slope_upland,
             bay_fetch_initial=5000,
-            forest_width_initial_fixed=False,
+            forest_width_initial_fixed=True,
             forest_width_initial=2000,
             wind_speed=6,
             seagrass_on=False,
@@ -122,7 +122,7 @@ class BarrierBMFT:
             reference_concentration=reference_concentration,
             slope_upland=slope_upland,
             bay_fetch_initial=5000,
-            forest_width_initial_fixed=False,
+            forest_width_initial_fixed=True,
             forest_width_initial=2000,  # 5000 accomodates 250 yrs at R=15 and S=0.001
             wind_speed=6,
             seagrass_on=False,

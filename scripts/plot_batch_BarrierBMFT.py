@@ -22,68 +22,65 @@ from barrier3d.tools import plot as B3Dfunc
 # ==================================================================================================================================================================================
 # Define batch parameters
 
-Num = 1  # Number of runs at each combinations of parameter values
-SimDur = 100  # [Yr] Duration of each simulation
+Num = 3  # Number of runs at each combinations of parameter values
+SimDur = 10  # [Yr] Duration of each simulation
 
 # Parameter values
-rslr = [1, 3, 5, 7, 9]
-co = [15, 30, 45, 60, 75]
-slope = [0.005]
+rslr = [3, 4, 9, 12, 15]
+co = [20, 30, 40, 50, 60]
+slope = [0.003]
 
 SimNum = len(rslr) * len(co) * len(slope)
 
 # ==================================================================================================================================================================================
 # Load data
-filename = '/Users/ianreeves/PycharmProjects/BarrierBMFT/Output/Batch_2022_0118_17_15/'
+filename = '/Users/ianreeves/PycharmProjects/BarrierBMFT/Output/Batch_2022_0206_16_41/'
 
 BarrierWidth = np.load(filename + 'Widths_Barrier.npy')
-BarrierWidth = BarrierWidth[0, :, :, 0] * -1
+BarrierWidth = np.mean(BarrierWidth[:, :, :, 0], axis=0)
 BarrierWidth = np.rot90(BarrierWidth)
 BarrierWidth = np.flipud(BarrierWidth)
 
 BBMarshWidth = np.load(filename + 'Widths_BBMarsh.npy')
-BBMarshWidth = BBMarshWidth[0, :, :, 0] * -1
+BBMarshWidth = np.mean(BBMarshWidth[:, :, :, 0], axis=0)
 BBMarshWidth = np.rot90(BBMarshWidth)
 BBMarshWidth = np.flipud(BBMarshWidth)
 
 BayWidth = np.load(filename + 'Widths_Bay.npy')
-BayWidth = BayWidth[0, :, :, 0] * -1
+BayWidth = np.mean(BayWidth[:, :, :, 0], axis=0)
 BayWidthOrig = BayWidth
 BayWidth = np.rot90(BayWidth)
 BayWidth = np.flipud(BayWidth)
 
 MLMarshWidth = np.load(filename + 'Widths_MLMarsh.npy')
-MLMarshWidth = MLMarshWidth[0, :, :, 0] * -1
+MLMarshWidth = np.mean(MLMarshWidth[:, :, :, 0], axis=0)
 MLMarshWidth = np.rot90(MLMarshWidth)
 MLMarshWidth = np.flipud(MLMarshWidth)
 
 ForestWidth = np.load(filename + 'Widths_Forest.npy')
-ForestWidth = ForestWidth[0, :, :, 0] * -1
+ForestWidth = np.mean(ForestWidth[:, :, :, 0], axis=0)
 ForestWidthOrig = ForestWidth
 ForestWidth = np.rot90(ForestWidth)
 ForestWidth = np.flipud(ForestWidth)
 
 ShorelineChange = np.load(filename + 'ShorelineChange.npy')
-ShorelineChange = ShorelineChange[0, :, :, 0]
+ShorelineChange = np.mean(ShorelineChange[:, :, :, 0], axis=0)
 ShorelineChange = np.rot90(ShorelineChange)
 ShorelineChange = np.flipud(ShorelineChange)
-
 
 # SimEl = np.load(filename + 'Sim25_elevation.npy', allow_pickle=True)
 
 # ==================================================================================================================================================================================
 # Plot
 
-xtic = ['', '1', '3', '5', '7', '9']
-ytic = ['', '15', '30', '45', '60', '75']
+xtic = ['', '3', '6', '9', '12', '15']
+ytic = ['', '20', '30', '40', '50', '60']
 
 xlab = 'RSLR [mm/yr]'
 ylab = 'Back-Barrier SSC [mg/L]'
 
 all = np.concatenate((BarrierWidth, BBMarshWidth, BayWidth, MLMarshWidth, ForestWidth))
-vmin = int(np.min(all))
-vmax = int(np.max(all))
-maximum = max(abs(vmin), abs(vmax))
+maximum = max(abs(int(np.min(all))), abs(int(np.max(all))))
 vmax = maximum
 vmin = -maximum
 
