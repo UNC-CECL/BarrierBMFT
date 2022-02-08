@@ -4,26 +4,17 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the PyBMFT-C model
 
 Copyright Ian RB Reeves
-Last updated: 19 January 2022
+Last updated: 7 February 2022
 """
 
-import time
-import math
-import os
-import imageio
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
-from datetime import datetime
-
-from barrierbmft.barrierbmft import BarrierBMFT
-from barrier3d.tools import plot as B3Dfunc
 
 # ==================================================================================================================================================================================
 # Define batch parameters
 
 Num = 3  # Number of runs at each combinations of parameter values
-SimDur = 10  # [Yr] Duration of each simulation
+SimDur = 50  # [Yr] Duration of each simulation
 
 # Parameter values
 rslr = [3, 4, 9, 12, 15]
@@ -34,7 +25,8 @@ SimNum = len(rslr) * len(co) * len(slope)
 
 # ==================================================================================================================================================================================
 # Load data
-filename = '/Users/ianreeves/PycharmProjects/BarrierBMFT/Output/Batch_2022_0206_16_41/'
+# filename = '/Users/ianreeves/PycharmProjects/BarrierBMFT/Output/Batch_2022_0207_13_37/'
+filename = '/Users/reevesi/PycharmProjects/BarrierBMFT/Output/Batch_2022_0207_18_03/'
 
 BarrierWidth = np.load(filename + 'Widths_Barrier.npy')
 BarrierWidth = np.mean(BarrierWidth[:, :, :, 0], axis=0)
@@ -79,15 +71,15 @@ ytic = ['', '20', '30', '40', '50', '60']
 xlab = 'RSLR [mm/yr]'
 ylab = 'Back-Barrier SSC [mg/L]'
 
-all = np.concatenate((BarrierWidth, BBMarshWidth, BayWidth, MLMarshWidth, ForestWidth))
-maximum = max(abs(int(np.min(all))), abs(int(np.max(all))))
+all_widths = np.concatenate((BarrierWidth, BBMarshWidth, BayWidth, MLMarshWidth, ForestWidth))
+maximum = max(abs(int(np.min(all_widths))), abs(int(np.max(all_widths))))
 vmax = maximum
 vmin = -maximum
 
 
 cmap = 'RdBu'
 Fig = plt.figure(figsize=(28, 6))
-plt.rcParams.update({'font.size': 14, 'font.family': 'Arial'})
+plt.rcParams.update({'font.size': 10, 'font.family': 'Arial'})
 
 ax = Fig.add_subplot(151)
 cax = ax.matshow(BarrierWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)

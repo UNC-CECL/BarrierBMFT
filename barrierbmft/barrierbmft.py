@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the BMFT-C model (python version)
 
 Copyright Ian RB Reeves
-Last updated: 1 February 2022
+Last updated: 7 February 2022
 """
 
 import numpy as np
@@ -26,13 +26,17 @@ def set_yaml(var_name, new_vals, file_name):
         dump(doc, f)
 
 
-def init_equal(bmftc_ML, bmftc_BB, datadir, input_file):
+def init_equal(bmftc_ML, bmftc_BB, datadir, input_file, storm_file):
     """Initialize Barrier3D and set identical parameters equal to values in PyBMFT-C"""
 
     fid = datadir + input_file
 
-    barrier3d = Barrier3dBmi()
+    # Set storm series and duration
+    set_yaml("storm_file", storm_file, fid)
+    set_yaml("TMAX", bmftc_ML.dur + 1, fid)  # [yrs] Duration of simulation
 
+    # Initialize
+    barrier3d = Barrier3dBmi()
     barrier3d.initialize(fid)
 
     # Check if PyBMFT-C Parameters Are Equal
@@ -69,7 +73,6 @@ def init_equal(bmftc_ML, bmftc_BB, datadir, input_file):
         return
 
     # Equalize Barrier3D/PyBMFT-C Values of Identical Parameters
-    set_yaml("TMAX", bmftc_ML.dur + 1, fid)  # [yrs] Duration of simulation
     barrier3d.model._TMAX = bmftc_ML.dur + 1  # [yrs] Duration of simulation
     barrier3d.model._RSLR = np.ones([len(barrier3d.model._RSLR) + 1]) * (bmftc_ML.RSLRi / 1000) / 10  # [m/yr] Relative sea-level rise rate, converted units
     barrier3d.model._BayDepth = bmftc_ML.Bay_depth[bmftc_ML.startyear - 1] / 10  # [yrs] Initial depth of bay
@@ -84,10 +87,11 @@ class BarrierBMFT:
 
     def __init__(
             self,
-            time_step_count=50,
+            time_step_count=20,
             relative_sea_level_rise=4,
             reference_concentration=30,
             slope_upland=0.005,
+            storm_file="StormTimeSeries_1000yr.npy",
     ):
         """ Initialize Barrier3D and PyBMFT-C """
 
@@ -135,7 +139,7 @@ class BarrierBMFT:
         # Initialize Barrier3D
         datadir = "Input/Barrier3D/"  # Specify data directory
         input_file = "barrier3d-parameters.yaml"  # Specify file with Barrier3D initial conditions
-        self._barrier3d = init_equal(self._bmftc_ML, self._bmftc_BB, datadir, input_file)  # Initialize Barrier3D and set matching parameters equal
+        self._barrier3d = init_equal(self._bmftc_ML, self._bmftc_BB, datadir, input_file, storm_file)  # Initialize Barrier3D and set matching parameters equal
 
         # ===========================================
         # Initialize break variables

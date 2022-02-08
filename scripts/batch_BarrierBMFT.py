@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the PyBMFT-C model
 
 Copyright Ian RB Reeves
-Last updated: 20 January 2022
+Last updated: 7 February 2022
 """
 
 import time
@@ -18,15 +18,15 @@ from barrier3d.tools.input_files import yearly_storms
 # ==================================================================================================================================================================================
 # Define batch parameters
 
-Num = 2  # Number of runs at each combinations of parameter values
-SimDur = 3  # [Yr] Duration of each simulation
+Num = 3  # Number of runs at each combinations of parameter values
+SimDur = 25  # [Yr] Duration of each simulation
 
 # Parameter values
 rslr = [3, 4, 9, 12, 15]
 co = [20, 30, 40, 50, 60]
 slope = [0.003]
 
-SimNum = len(rslr) * len(co) * len(slope)
+SimNum = Num * len(rslr) * len(co) * len(slope)
 
 # ==================================================================================================================================================================================
 # Make new directory and data arrays
@@ -53,13 +53,17 @@ Sim = 0
 
 for n in range(Num):
 
+    storm_file = "StormSeries_VCR_Berm1pt9m_Slope0pt04.npy"
+
     StormSeries = yearly_storms(
         datadir='Input/Barrier3D',
         storm_list_name="StormList_20k_VCR_Berm1pt9m_Slope0pt04.csv",
         mean_yearly_storms=8.3,
         SD_yearly_storms=5.9,
-        model_years=10,
+        model_years=SimDur + 2,
         bPlot=False,
+        bSave=True,
+        output_filename=storm_file,
     )
 
     for r in range(len(rslr)):
@@ -74,10 +78,8 @@ for n in range(Num):
                     relative_sea_level_rise=rslr[r],
                     reference_concentration=co[c],
                     slope_upland=slope[s],
+                    storm_file=storm_file  # Update new storm series
                 )
-
-                # Update storm series
-                barrierbmft.barrier3d.StormSeries = StormSeries
 
                 # Run simulation: Loop through time
                 for time_step in range(int(barrierbmft.bmftc.dur)):
@@ -139,19 +141,3 @@ print()
 BatchDuration = time.time() - Time
 print()
 print("Elapsed Time: ", BatchDuration, "sec")
-
-
-
-
-
-# ==================================================================================================================================================================================
-# Plot
-
-
-
-
-
-
-
-
-
