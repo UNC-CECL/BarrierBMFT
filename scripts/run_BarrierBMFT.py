@@ -202,6 +202,15 @@ plt.plot(barrierbmft.bmftc_ML.Forest_edge[barrierbmft.bmftc_ML.startyear: barrie
 plt.xlabel("Time [yr]")
 plt.ylabel("'Forest' Edge [m]")
 
+# ===========
+plt.figure()
+fig = plt.gcf()
+fig.set_size_inches(7, 15)
+plt.plot(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1], label="Marsh Edge")
+plt.plot(barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1], label="Forest Edge")
+plt.xlabel("Time [yr]")
+plt.ylabel("X-Position [m]")
+plt.legend()
 
 # ===========
 # plt.figure()

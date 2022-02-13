@@ -11,6 +11,8 @@ import time
 import os
 import numpy as np
 from datetime import datetime
+import multiprocessing
+from joblib import Parallel, delayed
 
 from barrierbmft.barrierbmft import BarrierBMFT
 from barrier3d.tools.input_files import yearly_storms
@@ -18,44 +20,25 @@ from barrier3d.tools.input_files import yearly_storms
 # ==================================================================================================================================================================================
 # Define batch parameters
 
-Num = 3  # Number of runs at each combinations of parameter values
-SimDur = 25  # [Yr] Duration of each simulation
+Num = 10  # Number of runs at each combinations of parameter values
+SimDur = 200  # [Yr] Duration of each simulation
 
 # Parameter values
-rslr = [3, 4, 9, 12, 15]
+rslr = [3, 6, 9, 12, 15]
 co = [20, 30, 40, 50, 60]
 slope = [0.003]
 
-SimNum = Num * len(rslr) * len(co) * len(slope)
 
 # ==================================================================================================================================================================================
-# Make new directory and data arrays
+# Run parameter space
 
-name = datetime.today().strftime('%Y_%m%d_%H_%M')
-directory = 'Output/Batch_' + name
-print('Batch_' + name)
-os.makedirs(directory)
+def RunBatch(n):
+    SimNum = len(rslr) * len(co) * len(slope)
+    Sim = 0 + (SimNum * n)
 
-BarrierWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
-BBMarshWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
-BayWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
-MLMarshWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
-ForestWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
-ShorelineChange = np.zeros([Num, len(rslr), len(co), len(slope)])
+    storm_file = "StormSeries_VCR_Berm1pt9m_Slope0pt04_" + str(n) + ".npy"
 
-
-# ==================================================================================================================================================================================
-# Run the BarrierBMFT batch
-
-# Record start time
-Time = time.time()
-Sim = 0
-
-for n in range(Num):
-
-    storm_file = "StormSeries_VCR_Berm1pt9m_Slope0pt04.npy"
-
-    StormSeries = yearly_storms(
+    yearly_storms(
         datadir='Input/Barrier3D',
         storm_list_name="StormList_20k_VCR_Berm1pt9m_Slope0pt04.csv",
         mean_yearly_storms=8.3,
@@ -65,6 +48,8 @@ for n in range(Num):
         bSave=True,
         output_filename=storm_file,
     )
+
+    WidthData = np.zeros([6, len(rslr), len(co), len(slope)])
 
     for r in range(len(rslr)):
         for c in range(len(co)):
@@ -85,7 +70,7 @@ for n in range(Num):
                 for time_step in range(int(barrierbmft.bmftc.dur)):
 
                     # Print time step to screen
-                    print("\r", "Time Step: ", time_step, "     Sim", Sim, "/", SimNum, "     (n", n, ", r", r, ", c", c, ")", end="")
+                    # print("\r", "Time Step: ", time_step, "     Sim", Sim, "/", (SimNum * (n + 1)), "     (n", n, ", r", r, ", c", c, ")", end="")
 
                     # Run time step
                     barrierbmft.update(time_step)
@@ -106,12 +91,12 @@ for n in range(Num):
                 sc = int(barrierbmft.barrier3d.model.ShorelineChange)
 
                 # Store in arrays
-                BarrierWidth[n, r, c, s] = barrier_w
-                BBMarshWidth[n, r, c, s] = BBmarsh_w
-                BayWidth[n, r, c, s] = bay_w
-                MLMarshWidth[n, r, c, s] = MLmarsh_w
-                ForestWidth[n, r, c, s] = forest_w
-                ShorelineChange[n, r, c, s] = sc
+                WidthData[0, r, c, s] = barrier_w
+                WidthData[1, r, c, s] = BBmarsh_w
+                WidthData[2, r, c, s] = bay_w
+                WidthData[3, r, c, s] = MLmarsh_w
+                WidthData[4, r, c, s] = forest_w
+                WidthData[5, r, c, s] = sc
 
                 # Save elevation array
                 whole_transect = []
@@ -127,6 +112,47 @@ for n in range(Num):
 
                 np.save(directory + '/Sim' + str(Sim) + '_elevation.npy', whole_transect)
 
+    return WidthData
+
+
+# ==================================================================================================================================================================================
+# Make new directory and data arrays
+
+name = datetime.today().strftime('%Y_%m%d_%H_%M')
+directory = 'Output/Batch_' + name
+print('Batch_' + name)
+os.makedirs(directory)
+
+BarrierWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
+BBMarshWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
+BayWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
+MLMarshWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
+ForestWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
+ShorelineChange = np.zeros([Num, len(rslr), len(co), len(slope)])
+
+# ==================================================================================================================================================================================
+# Run the BarrierBMFT batch
+
+# Record start time
+Time = time.time()
+
+# num_cores = multiprocessing.cpu_count()
+num_cores = int(min(Num, 25))
+print('Cores: ' + str(num_cores))
+print('Running...')
+
+results = Parallel(n_jobs=num_cores)(delayed(RunBatch)(n) for n in range(Num))
+
+# Reorganize
+for N in range(Num):
+    PS = results[N]
+    BarrierWidth[N, :, :, :] = PS[0, :, :, :]
+    BBMarshWidth[N, :, :, :] = PS[1, :, :, :]
+    BayWidth[N, :, :, :] = PS[2, :, :, :]
+    MLMarshWidth[N, :, :, :] = PS[3, :, :, :]
+    ForestWidth[N, :, :, :] = PS[4, :, :, :]
+    ShorelineChange[N, :, :, :] = PS[5, :, :, :]
+
 # Save batch data arrays
 np.save(directory + '/Widths_Barrier.npy', BarrierWidth)
 np.save(directory + '/Widths_BBMarsh.npy', BBMarshWidth)
@@ -134,7 +160,6 @@ np.save(directory + '/Widths_Bay.npy', BayWidth)
 np.save(directory + '/Widths_MLMarsh.npy', MLMarshWidth)
 np.save(directory + '/Widths_Forest.npy', ForestWidth)
 np.save(directory + '/ShorelineChange.npy', ShorelineChange)
-
 
 # Print elapsed time of batch run
 print()

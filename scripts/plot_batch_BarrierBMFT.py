@@ -14,11 +14,14 @@ import matplotlib.pyplot as plt
 # Define batch parameters
 
 Num = 3  # Number of runs at each combinations of parameter values
-SimDur = 50  # [Yr] Duration of each simulation
+SimDur = 25  # [Yr] Duration of each simulation
 
 # Parameter values
-rslr = [3, 4, 9, 12, 15]
-co = [20, 30, 40, 50, 60]
+# rslr = [3, 4, 9, 12, 15]
+# co = [20, 30, 40, 50, 60]
+# slope = [0.003]
+rslr = [3, 6, 9]
+co = [20, 30, 40]
 slope = [0.003]
 
 SimNum = len(rslr) * len(co) * len(slope)
@@ -26,7 +29,7 @@ SimNum = len(rslr) * len(co) * len(slope)
 # ==================================================================================================================================================================================
 # Load data
 # filename = '/Users/ianreeves/PycharmProjects/BarrierBMFT/Output/Batch_2022_0207_13_37/'
-filename = '/Users/reevesi/PycharmProjects/BarrierBMFT/Output/Batch_2022_0207_18_03/'
+filename = '/Users/reevesi/PycharmProjects/BarrierBMFT/Output/Batch_2022_0208_19_30/'
 
 BarrierWidth = np.load(filename + 'Widths_Barrier.npy')
 BarrierWidth = np.mean(BarrierWidth[:, :, :, 0], axis=0)
