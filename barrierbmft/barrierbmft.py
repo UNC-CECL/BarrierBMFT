@@ -87,9 +87,9 @@ class BarrierBMFT:
 
     def __init__(
             self,
-            time_step_count=250,
-            relative_sea_level_rise=6,
-            reference_concentration=30,
+            time_step_count=100,
+            relative_sea_level_rise=9,
+            reference_concentration=20,
             slope_upland=0.005,
             storm_file="StormTimeSeries_1000yr.npy",  # "StormSeries_VCR_Berm1pt9m_Slope0pt04_1.npy",
     ):
@@ -108,13 +108,13 @@ class BarrierBMFT:
             reference_concentration=reference_concentration,
             slope_upland=slope_upland,
             bay_fetch_initial=5000,
-            forest_width_initial_fixed=False,
-            forest_width_initial=2000,
+            forest_width_initial_fixed=True,
+            forest_width_initial=5000,
             wind_speed=6,
             seagrass_on=False,
             forest_on=True,
-            filename_equilbaydepth="Input/PyBMFT-C/Equilibrium Bay Depth.mat",  # Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat"
-            filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat",  # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat"
+            filename_equilbaydepth="Input/PyBMFT-C/Equilibrium Bay Depth.mat",  # "Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",
+            filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat",  # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
             marsh_width_initial=500,
         )
 
@@ -126,13 +126,13 @@ class BarrierBMFT:
             reference_concentration=reference_concentration,
             slope_upland=slope_upland,
             bay_fetch_initial=5000,
-            forest_width_initial_fixed=False,
-            forest_width_initial=2000,  # 5000 accomodates 250 yrs at R=15 and S=0.001
+            forest_width_initial_fixed=True,
+            forest_width_initial=5000,  # 5000 accomodates 250 yrs at R=15 and S=0.001
             wind_speed=6,
             seagrass_on=False,
             forest_on=False,
-            filename_equilbaydepth="Input/PyBMFT-C/Equilibrium Bay Depth.mat",  # Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat"
-            filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat",  # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat"
+            filename_equilbaydepth="Input/PyBMFT-C/Equilibrium Bay Depth.mat",  # "Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",
+            filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat",  # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
             marsh_width_initial=500,
         )
 
@@ -234,9 +234,11 @@ class BarrierBMFT:
         # Adjust bay depth in Barrier3D according to depth calculated in PyBMFT-C
         self._barrier3d.model._BayDepth = np.mean([self._bmftc_ML.db, self._bmftc_BB.db]) / 10
 
-        # # Adjust bay routing width in Barrier3D if fetch in PyBMFTC becomes narrower than 100 m
-        # if self._bmftc_ML.bfo < 100:
-        #     self._barrier3d.model.bay_routing_width = int(math.floor(self._bmftc_ML.bfo / 10))  # IR 3Feb22: Doesn't work for some reason, need to fix
+        # Adjust bay routing width in Barrier3D if fetch in PyBMFTC becomes narrower than 100 m
+        if self._bmftc_ML.bfo < 100:
+            self._barrier3d.model._bay_routing_width = int(math.floor(self._bmftc_ML.bfo / 10))
+        else:
+            self._barrier3d.model._bay_routing_width = 15
 
         # ===================================================================================================================================================================================================================================
         # ===================================================================================================================================================================================================================================
@@ -383,12 +385,12 @@ class BarrierBMFT:
             # Add subaerial elevation change
             self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, -len(elevation_change_b3d[x_m_change:]):] += elevation_change_b3d[x_m_change:]
             # Store mass of overwash mineral sediment deposited across transect
-            self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, -len(elevation_change_b3d[x_m_change:]):] += (elevation_change_b3d[x_m_change:] * self._bmftc_BB.rhos)  # [g] Mass of pure mineral sediment deposited by overwash
+            self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, -len(elevation_change_b3d[x_m_change:]):] += (elevation_change_b3d[x_m_change:] * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash
 
             # Determine volume of sed deposited past initial marsh edge and into bay
             sum_bay_dep = np.sum(elevation_change_b3d[:x_m_change]) / 2  # [m^3] Volume of overwash deposition into bay, i.e. landward of marsh edge
-            # self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Half of overwash deposition into bay is dispersed, half remains at marsh edge to build marsh bondary landward; volume converted to mass
-            # self._bmftc_ML._Fow_min = max(0, sum_bay_dep * self._bmftc_ML.rhos)  # [kg/yr] Same as above for ML instance
+            self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Half of overwash deposition into bay is dispersed, half remains at marsh edge to build marsh bondary landward; volume converted to mass
+            self._bmftc_ML._Fow_min = max(0, sum_bay_dep * self._bmftc_ML.rhos)  # [kg/yr] Same as above for ML instance
 
             # Add volume of carryover from last time step
             sum_bay_dep += self._bay_overwash_carryover  # [m^3] Bay deposition from previous time step that wasn't enough to fully fill bay cell up to sea level
@@ -405,8 +407,7 @@ class BarrierBMFT:
                 # Add subaqueous elevation change
                 self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += new_marsh_height
                 # Store mass of overwash mineral sediment deposited across transect
-                self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += (new_marsh_height * self._bmftc_BB.rhos)  # [g] Mass of pure mineral sediment deposited by overwash
-                print("Prograde", progradation)
+                self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += (new_marsh_height * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash
 
             # Spread 50% of overwash bay flux evenly across bay bottom
             bay_accrete = sum_bay_dep / (self._bmftc_BB.bfo - progradation)  # [m] Vertical accretion of bay bottom from overwash deposition in bay
@@ -423,12 +424,12 @@ class BarrierBMFT:
             # Add subaerial elevation change
             self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.B - off - len(elevation_change_b3d[x_m_change:]): self._bmftc_BB.B - off] += elevation_change_b3d[x_m_change:]
             # Store mass of overwash mineral sediment deposited across transect
-            self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, self._bmftc_BB.B - off - len(elevation_change_b3d[x_m_change:]): self._bmftc_BB.B - off] += (elevation_change_b3d[x_m_change:] * self._bmftc_BB.rhos)  # [g] Mass of pure mineral sediment deposited by overwash
+            self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, self._bmftc_BB.B - off - len(elevation_change_b3d[x_m_change:]): self._bmftc_BB.B - off] += (elevation_change_b3d[x_m_change:] * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash
 
             # Determine volume of sed deposited past initial marsh edge and into bay
             sum_bay_dep = np.sum(elevation_change_b3d[:x_m_change]) / 2  # [m^3] Volume of overwash deposition into bay, i.e. landward of marsh edge
-            # self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Half of overwash deposition into bay is dispersed, half remains at marsh edge to build marsh bondary landward; volume converted to mass
-            # self._bmftc_ML._Fow_min = max(0, sum_bay_dep * self._bmftc_ML.rhos)  # [kg/yr] Same as above for ML instance
+            self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Half of overwash deposition into bay is dispersed, half remains at marsh edge to build marsh bondary landward; volume converted to mass
+            self._bmftc_ML._Fow_min = max(0, sum_bay_dep * self._bmftc_ML.rhos)  # [kg/yr] Same as above for ML instance
 
             # Add volume of carryover from last time step
             sum_bay_dep += self._bay_overwash_carryover  # [m^3] Bay deposition from previous time step that wasn't enough to fully fill bay cell up to sea level
@@ -445,8 +446,7 @@ class BarrierBMFT:
                 # Add subaqueous elevation change
                 self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += new_marsh_height
                 # Store mass of overwash mineral sediment deposited across transect
-                self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += (new_marsh_height * self._bmftc_BB.rhos)  # [g] Mass of pure mineral sediment deposited by overwash
-                print("Prograde", progradation)
+                self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += (new_marsh_height * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash
 
             # Spread 50% of overwash bay flux evenly across bay bottom
             bay_accrete = sum_bay_dep / (self._bmftc_BB.bfo - progradation)  # [m] Vertical accretion of bay bottom from overwash deposition in bay
@@ -466,12 +466,12 @@ class BarrierBMFT:
             # Add subaerial elevation change
             self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, -len(elevation_change_b3d[x_m_change:]):] += elevation_change_b3d[x_m_change:]
             # Store mass of overwash mineral sediment deposited across transect
-            self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, -len(elevation_change_b3d[x_m_change:]):] += (elevation_change_b3d[x_m_change:] * self._bmftc_BB.rhos)  # [g] Mass of pure mineral sediment deposited by overwash
+            self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, -len(elevation_change_b3d[x_m_change:]):] += (elevation_change_b3d[x_m_change:] * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash
 
             # Determine volume of sed deposited past initial marsh edge and into bay
             sum_bay_dep = np.sum(elevation_change_b3d[:x_m_change]) / 2  # [m^3] Volume of overwash deposition into bay, i.e. landward of marsh edge
-            # self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Half of overwash deposition into bay is dispersed, half remains at marsh edge to build marsh bondary landward; volume converted to mass
-            # self._bmftc_ML._Fow_min = max(0, sum_bay_dep * self._bmftc_ML.rhos)  # [kg/yr] Same as above for ML instance
+            self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Half of overwash deposition into bay is dispersed, half remains at marsh edge to build marsh bondary landward; volume converted to mass
+            self._bmftc_ML._Fow_min = max(0, sum_bay_dep * self._bmftc_ML.rhos)  # [kg/yr] Same as above for ML instance
 
             # Add volume of carryover from last time step
             sum_bay_dep += self._bay_overwash_carryover  # [m^3] Bay deposition from previous time step that wasn't enough to fully fill bay cell up to sea level
@@ -488,8 +488,7 @@ class BarrierBMFT:
                 # Add subaqueous elevation change
                 self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += new_marsh_height
                 # Store mass of overwash mineral sediment deposited across transect
-                self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += (new_marsh_height * self._bmftc_BB.rhos)  # [g] Mass of pure mineral sediment deposited by overwash
-                print("Prograde", progradation)
+                self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += (new_marsh_height * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash
 
             # Spread 50% of overwash bay flux evenly across bay bottom
             bay_accrete = sum_bay_dep / (self._bmftc_BB.bfo - progradation)  # [m] Vertical accretion of bay bottom from overwash deposition in bay
