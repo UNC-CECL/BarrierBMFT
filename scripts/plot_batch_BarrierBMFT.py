@@ -13,23 +13,19 @@ import matplotlib.pyplot as plt
 # ==================================================================================================================================================================================
 # Define batch parameters
 
-Num = 3  # Number of runs at each combinations of parameter values
-SimDur = 25  # [Yr] Duration of each simulation
+Num = 1  # Number of runs at each combinations of parameter values
+SimDur = 250  # [Yr] Duration of each simulation
 
 # Parameter values
-# rslr = [3, 4, 9, 12, 15]
-# co = [20, 30, 40, 50, 60]
-# slope = [0.003]
-rslr = [3, 6, 9]
-co = [20, 30, 40]
-slope = [0.003]
+rslr = [3, 6, 9, 12, 15]
+co = [20, 30, 40, 50, 60]
+slope = [0.005]
 
 SimNum = len(rslr) * len(co) * len(slope)
 
 # ==================================================================================================================================================================================
 # Load data
-# filename = '/Users/ianreeves/PycharmProjects/BarrierBMFT/Output/Batch_2022_0207_13_37/'
-filename = '/Users/reevesi/PycharmProjects/BarrierBMFT/Output/Batch_2022_0208_19_30/'
+filename = '/BarrierBMFT/Output/Batch_2022_0207_13_37/'
 
 BarrierWidth = np.load(filename + 'Widths_Barrier.npy')
 BarrierWidth = np.mean(BarrierWidth[:, :, :, 0], axis=0)
@@ -60,6 +56,7 @@ ForestWidth = np.flipud(ForestWidth)
 
 ShorelineChange = np.load(filename + 'ShorelineChange.npy')
 ShorelineChange = np.mean(ShorelineChange[:, :, :, 0], axis=0)
+ShorelineChange  = ShorelineChange * 10  # Convert to m
 ShorelineChange = np.rot90(ShorelineChange)
 ShorelineChange = np.flipud(ShorelineChange)
 
@@ -74,6 +71,7 @@ ytic = ['', '20', '30', '40', '50', '60']
 xlab = 'RSLR [mm/yr]'
 ylab = 'Back-Barrier SSC [mg/L]'
 
+sumwidth = BarrierWidth + BBMarshWidth + BayWidth + MLMarshWidth + ForestWidth
 all_widths = np.concatenate((BarrierWidth, BBMarshWidth, BayWidth, MLMarshWidth, ForestWidth))
 maximum = max(abs(int(np.min(all_widths))), abs(int(np.max(all_widths))))
 vmax = maximum
@@ -81,10 +79,10 @@ vmin = -maximum
 
 
 cmap = 'RdBu'
-Fig = plt.figure(figsize=(28, 6))
+Fig = plt.figure(figsize=(16, 3.4))
 plt.rcParams.update({'font.size': 10, 'font.family': 'Arial'})
 
-ax = Fig.add_subplot(151)
+ax = Fig.add_subplot(161)
 cax = ax.matshow(BarrierWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
 ax.xaxis.set_ticks_position('bottom')
 # cbar = Fig.colorbar(cax)
@@ -94,8 +92,7 @@ ax.set_yticklabels(ytic)
 plt.ylabel(ylab)
 plt.title('Barrier')
 
-
-ax = Fig.add_subplot(152)
+ax = Fig.add_subplot(162)
 cax = ax.matshow(BBMarshWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
 ax.xaxis.set_ticks_position('bottom')
 # cbar = Fig.colorbar(cax)
@@ -104,7 +101,7 @@ ax.set_xticklabels(xtic)
 ax.set_yticklabels(ytic)
 plt.title('Back-Barrier Marsh')
 
-ax = Fig.add_subplot(153)
+ax = Fig.add_subplot(163)
 cax = ax.matshow(BayWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
 ax.xaxis.set_ticks_position('bottom')
 # cbar = Fig.colorbar(cax)
@@ -114,7 +111,7 @@ ax.set_yticklabels(ytic)
 plt.xlabel(xlab)
 plt.title('Bay')
 
-ax = Fig.add_subplot(154)
+ax = Fig.add_subplot(164)
 cax = ax.matshow(MLMarshWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
 ax.xaxis.set_ticks_position('bottom')
 # cbar = Fig.colorbar(cax)
@@ -123,26 +120,27 @@ ax.set_xticklabels(xtic)
 ax.set_yticklabels(ytic)
 plt.title('Mainland Marsh')
 
-ax = Fig.add_subplot(155)
+ax = Fig.add_subplot(165)
 cax = ax.matshow(ForestWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
 ax.xaxis.set_ticks_position('bottom')
-cbar = Fig.colorbar(cax)
-cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+# cbar = Fig.colorbar(cax)
+# cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
 ax.set_xticklabels(xtic)
 ax.set_yticklabels(ytic)
 plt.title('Forest')
 plt.tight_layout()
 
-# sumplot = BarrierWidth + BBMarshWidth + BayWidth + MLMarshWidth + ForestWidth
-# ax = Fig.add_subplot(166)
-# cax = ax.matshow(sumplot, origin='lower', cmap='Greys', aspect='auto')
-# ax.xaxis.set_ticks_position('bottom')
+ax = Fig.add_subplot(166)
+cax = ax.matshow(sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+# cax = ax.matshow(ShorelineChange, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+ax.xaxis.set_ticks_position('bottom')
 # cbar = Fig.colorbar(cax)
-# cbar.set_label('', rotation=270, labelpad=20)
-# ax.set_xticklabels(xtic)
-# ax.set_yticklabels(ytic)
-# plt.xlabel(xlab)
-# plt.title('')
+# cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+ax.set_xticklabels(xtic)
+ax.set_yticklabels(ytic)
+plt.title('Total Landscape Width')
+# plt.title('Ocean Shoreline Change')
+plt.tight_layout()
 
 
 # plt.figure(figsize=(12, 6))

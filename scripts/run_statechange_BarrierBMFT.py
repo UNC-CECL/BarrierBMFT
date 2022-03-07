@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the PyBMFT-C model
 
 Copyright Ian RB Reeves
-Last updated: 20 January 2021
+Last updated: 25 February 2021
 """
 
 import time
@@ -17,10 +17,26 @@ import matplotlib.pyplot as plt
 from barrierbmft.barrierbmft import BarrierBMFT
 from barrier3d.tools import plot as B3Dfunc
 
+
+# ==================================================================================================================================================================================
+# Set Starting Parameters
+TS_max = 50
+TS_change = 25  # Time step at which state change occurs
+
+# new_rmin = 0.05
+# new_rmax = 0.55
+new_rmin = 0.65
+new_rmax = 1.15
+
 # ==================================================================================================================================================================================
 # Create an instance of the BMI class
-barrierbmft = BarrierBMFT()
+barrierbmft = BarrierBMFT(
+    time_step_count=TS_max,
+    )
 
+barrierbmft_NSC = BarrierBMFT(  # NO STATE CHANGE (CONTROL CASE)
+    time_step_count=TS_max,
+    )
 
 # ==================================================================================================================================================================================
 # Run the BarrierBMFT model
@@ -34,11 +50,50 @@ for time_step in range(int(barrierbmft.bmftc.dur)):
     # Print time step to screen
     print("\r", "Time Step: ", time_step, end="")
 
+    # STATE CHANGE!
+    if time_step == TS_change:
+        print("  - STATE CHANGE -")
+
+        yr = barrierbmft.bmftc_ML.startyear + time_step
+
+        # # Dunes knocked down and/or growth rates reduced
+        # barrierbmft.barrier3d.model.DuneDomain[time_step, :, :] = barrierbmft.barrier3d.model.DuneDomain[time_step, :, :] * 0.1
+        # barrierbmft.barrier3d.model.growthparam = new_rmin + (new_rmax - new_rmin) * np.random.rand(1, barrierbmft.barrier3d.model.BarrierLength)
+
+        # # Dunes built up and/or growth rates increased
+        # Hd_max = barrierbmft.barrier3d.model.Dmaxel - barrierbmft.barrier3d.model.BermEl - 0.02
+        # width = barrierbmft.barrier3d.model.DuneWidth
+        # length = barrierbmft.barrier3d.model.BarrierLength
+        # barrierbmft.barrier3d.model.DuneDomain[time_step, :, :] = np.ones([1, length, width]) * (Hd_max + (-0.01 + (0.01 - (-0.01)) * np.random.rand(1, length, width)))
+        # barrierbmft.barrier3d.model.growthparam = new_rmin + (new_rmax - new_rmin) * np.random.rand(1, barrierbmft.barrier3d.model.BarrierLength)
+
+        # # Mainland marsh loss
+        # x_m_ML = barrierbmft.bmftc_ML.x_m
+        # x_f_ML = barrierbmft.bmftc_ML.x_f
+        # x_b_ML = barrierbmft.bmftc_ML.x_b
+        # barrierbmft.bmftc_ML.elevation[time_step, x_m_ML: x_f_ML] = (barrierbmft.bmftc_ML.msl[barrierbmft.bmftc_ML.startyear + time_step] + barrierbmft.bmftc_ML.amp) - barrierbmft.bmftc_ML.db
+        # barrierbmft.bmftc_ML._x_m = barrierbmft.bmftc_ML.x_m + (x_f_ML - x_m_ML)
+        # barrierbmft.bmftc_ML._bfo = barrierbmft.bmftc_ML.bfo + (x_f_ML - x_m_ML)
+
+        # Mainland marsh gain
+        gain = 1000
+        db = barrierbmft.bmftc_ML.db
+        x_m_ML = barrierbmft.bmftc_ML.x_m
+        x_b_ML = barrierbmft.bmftc_ML.x_b
+        barrierbmft.bmftc_ML.elevation[yr, x_m_ML - gain - 1: x_m_ML - 1] += db
+        barrierbmft.bmftc_ML.organic_dep_autoch[yr, x_m_ML - gain - 1: x_m_ML - 1] = db * barrierbmft.bmftc_ML.rhos * 1000 * barrierbmft.bmftc_ML.OCb[yr]
+        barrierbmft.bmftc_ML.mineral_dep[yr, x_m_ML - gain - 1: x_m_ML - 1] = db * barrierbmft.bmftc_ML.rhos * 1000 * (1 - barrierbmft.bmftc_ML.OCb[yr])
+        barrierbmft.bmftc_ML._x_m = barrierbmft.bmftc_ML.x_m - gain
+        barrierbmft.bmftc_ML._bfo = barrierbmft.bmftc_ML.bfo - gain
+
     # Run time step
     barrierbmft.update(time_step)
+    barrierbmft_NSC.update(time_step)
 
     # Check for breaks
     if barrierbmft.BMFTC_Break or barrierbmft.Barrier3D_Break:
+        break
+    if barrierbmft_NSC.BMFTC_Break or barrierbmft_NSC.Barrier3D_Break:
         break
 
 # Print elapsed time of simulation
@@ -47,12 +102,10 @@ SimDuration = time.time() - Time
 print()
 print("Elapsed Time: ", SimDuration, "sec")
 
-# Show figure(s)
-plt.show()
-
 
 # ==================================================================================================================================================================================
 # Plot
+
 
 # Dune Height
 aHd = [a * 10 for a in barrierbmft.barrier3d.model.Hd_AverageTS]
@@ -220,6 +273,18 @@ plt.ylabel("X-Position [m]")
 plt.legend()
 
 # ===========
+plt.figure()
+fig = plt.gcf()
+fig.set_size_inches(7, 15)
+plt.plot(barrierbmft.bmftc_ML.C_e[barrierbmft.bmftc_ML.startyear:], label="ML")
+plt.plot(barrierbmft.bmftc_BB.C_e[barrierbmft.bmftc_BB.startyear:], label="BB")
+plt.plot(barrierbmft_NSC.bmftc_ML.C_e[barrierbmft_NSC.bmftc_ML.startyear:], label="ML - NSC")
+plt.plot(barrierbmft_NSC.bmftc_BB.C_e[barrierbmft_NSC.bmftc_BB.startyear:], label="BB - NSC")
+plt.xlabel("Time [yr]")
+plt.ylabel("SSC at Marsh Edge [kg/m^3]")
+plt.legend()
+
+# ===========
 # plt.figure()
 # plt.plot(barrierbmft.cumul_len_change)
 # plt.xlabel("Time [yr]")
@@ -259,6 +324,15 @@ MLmarsh = widths[:, 3]
 forest = widths[:, 4]
 barrier_marsh = barrier + BBmarsh
 
+widths_nsc = barrierbmft_NSC.LandscapeTypeWidth_TS
+total_width_nsc = np.sum(widths, axis=1)
+barrier_nsc = widths_nsc[:, 0]
+BBmarsh_nsc = widths_nsc[:, 1]
+bay_nsc = widths_nsc[:, 2]
+MLmarsh_nsc = widths_nsc[:, 3]
+forest_nsc = widths_nsc[:, 4]
+barrier_marsh_nsc = barrier_nsc + BBmarsh_nsc
+
 plt.figure(figsize=(15, 15))
 plt.rcParams.update({"font.size": 14})
 plt.plot(barrier / total_width, c="purple")
@@ -271,6 +345,7 @@ plt.xlabel("Time [yr]")
 plt.ylabel("Proportion of Entire Landscape Width")
 plt.legend(["Barrier", "Back-Barrier Marsh", "Bay", "Mainland Marsh", "Forest", "Barrier + Back-Barrier Marsh"])
 
+
 # ===========
 plt.figure()
 fig = plt.gcf()
@@ -279,32 +354,38 @@ plt.rcParams.update({"font.size": 12})
 
 # Barrier
 plt.subplot(2, 3, 1)
+plt.plot(barrier_nsc, c="black")
 plt.plot(barrier, c="red")
 plt.ylabel("Barrier [m]")
 
 # Back-Barrier Marsh
 plt.subplot(2, 3, 2)
+plt.plot(BBmarsh_nsc, c="black")
 plt.plot(BBmarsh, c="red")
 plt.ylabel("Back-Barrier Marsh [m]")
 
 # Barrier + Marsh
 plt.subplot(2, 3, 3)
+plt.plot(barrier_marsh_nsc, c="black")
 plt.plot(barrier_marsh, c="red")
 plt.ylabel("Barrier + Marsh [m]")
 
 # Bay
 plt.subplot(2, 3, 4)
+plt.plot(bay_nsc, c="black")
 plt.plot(bay, c="red")
 plt.ylabel("Bay [m]")
 
 # Mainland marsh
 plt.subplot(2, 3, 5)
+plt.plot(MLmarsh_nsc, c="black")
 plt.plot(MLmarsh, c="red")
 plt.ylabel("Mainland Marsh [m]")
 plt.xlabel("Time [yr]")
 
 # Forest
 plt.subplot(2, 3, 6)
+plt.plot(forest_nsc, c="black")
 plt.plot(forest, c="red")
 plt.ylabel("Forest [m]")
 plt.tight_layout()
