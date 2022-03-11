@@ -81,8 +81,8 @@ for time_step in range(int(barrierbmft.bmftc.dur)):
         x_m_ML = barrierbmft.bmftc_ML.x_m
         x_b_ML = barrierbmft.bmftc_ML.x_b
         barrierbmft.bmftc_ML.elevation[yr, x_m_ML - gain - 1: x_m_ML - 1] += db
-        barrierbmft.bmftc_ML.organic_dep_autoch[yr, x_m_ML - gain - 1: x_m_ML - 1] = db * barrierbmft.bmftc_ML.rhos * 1000 * barrierbmft.bmftc_ML.OCb[yr]
-        barrierbmft.bmftc_ML.mineral_dep[yr, x_m_ML - gain - 1: x_m_ML - 1] = db * barrierbmft.bmftc_ML.rhos * 1000 * (1 - barrierbmft.bmftc_ML.OCb[yr])
+        barrierbmft.bmftc_ML.organic_dep_autoch[yr, x_m_ML - gain - 1: x_m_ML - 1] += db * barrierbmft.bmftc_ML.rhos * 1000 * barrierbmft.bmftc_ML.OCb[yr]
+        barrierbmft.bmftc_ML.mineral_dep[yr, x_m_ML - gain - 1: x_m_ML - 1] += db * barrierbmft.bmftc_ML.rhos * 1000 * (1 - barrierbmft.bmftc_ML.OCb[yr])
         barrierbmft.bmftc_ML._x_m = barrierbmft.bmftc_ML.x_m - gain
         barrierbmft.bmftc_ML._bfo = barrierbmft.bmftc_ML.bfo - gain
 
