@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the PyBMFT-C model
 
 Copyright Ian RB Reeves
-Last updated: 7 February 2022
+Last updated: 14 March 2022
 """
 
 import time
@@ -12,6 +12,7 @@ import os
 import numpy as np
 from datetime import datetime
 import multiprocessing
+import shutil
 from joblib import Parallel, delayed
 
 from barrierbmft.barrierbmft import BarrierBMFT
@@ -20,8 +21,8 @@ from barrier3d.tools.input_files import yearly_storms
 # ==================================================================================================================================================================================
 # Define batch parameters
 
-Num = 10  # Number of runs at each combinations of parameter values
-SimDur = 200  # [Yr] Duration of each simulation
+Num = 5  # Number of runs at each combinations of parameter values
+SimDur = 400  # [Yr] Duration of each simulation
 
 # Parameter values
 rslr = [3, 6, 9, 12, 15]
@@ -34,10 +35,15 @@ slope = [0.003]
 
 def RunBatch(n):
     SimNum = len(rslr) * len(co) * len(slope)
+    WidthData = np.zeros([6, len(rslr), len(co), len(slope)])
     Sim = 0 + (SimNum * n)
 
-    storm_file = "StormSeries_VCR_Berm1pt9m_Slope0pt04_" + str(n) + ".npy"
+    # Make new parameters file for this set of simulations
+    new_param_file = "Batch" + str(n) + "-barrier3d-parameters.yaml"
+    shutil.copy("Input/Barrier3D/barrier3d-parameters.yaml", "Input/Barrier3D/" + new_param_file)
 
+    # Make new parameters file for this set of simulations
+    storm_file = "StormSeries_VCR_Berm1pt9m_Slope0pt04_" + str(n) + ".npy"
     yearly_storms(
         datadir='Input/Barrier3D',
         storm_list_name="StormList_20k_VCR_Berm1pt9m_Slope0pt04.csv",
@@ -48,8 +54,6 @@ def RunBatch(n):
         bSave=True,
         output_filename=storm_file,
     )
-
-    WidthData = np.zeros([6, len(rslr), len(co), len(slope)])
 
     for r in range(len(rslr)):
         for c in range(len(co)):
@@ -63,7 +67,8 @@ def RunBatch(n):
                     relative_sea_level_rise=rslr[r],
                     reference_concentration=co[c],
                     slope_upland=slope[s],
-                    storm_file=storm_file  # Update new storm series
+                    storm_file=storm_file,  # Update new storm series
+                    parameter_file=new_param_file
                 )
 
                 # Run simulation: Loop through time
