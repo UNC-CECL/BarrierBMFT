@@ -26,10 +26,10 @@ def set_yaml(var_name, new_vals, file_name):
         dump(doc, f)
 
 
-def init_equal(bmftc_ML, bmftc_BB, datadir, input_file, storm_file):
+def init_equal(bmftc_ML, bmftc_BB, datadir, parameter_file, storm_file):
     """Initialize Barrier3D and set identical parameters equal to values in PyBMFT-C"""
 
-    fid = datadir + input_file
+    fid = datadir + parameter_file
 
     # Set storm series and duration
     set_yaml("storm_file", storm_file, fid)
@@ -37,7 +37,7 @@ def init_equal(bmftc_ML, bmftc_BB, datadir, input_file, storm_file):
 
     # Initialize
     barrier3d = Barrier3dBmi()
-    barrier3d.initialize(fid)
+    barrier3d.initialize(config_file=fid)
 
     # Check if PyBMFT-C Parameters Are Equal
     if bmftc_ML.dur != bmftc_BB.dur:
@@ -91,7 +91,8 @@ class BarrierBMFT:
             relative_sea_level_rise=12,
             reference_concentration=20,
             slope_upland=0.005,
-            storm_file="StormTimeSeries_1000yr.npy",  # "StormSeries_VCR_Berm1pt9m_Slope0pt04_n4.npy",
+            storm_file="StormTimeSeries_1000yr.npy",  # "StormSeries_VCR_Berm1pt9m_Slope0pt04.npy",
+            parameter_file="barrier3d-parameters.yaml",
     ):
         """ Initialize Barrier3D and PyBMFT-C """
 
@@ -137,8 +138,8 @@ class BarrierBMFT:
 
         # Initialize Barrier3D
         datadir = "Input/Barrier3D/"  # Specify data directory
-        input_file = "barrier3d-parameters.yaml"  # Specify file with Barrier3D initial conditions
-        self._barrier3d = init_equal(self._bmftc_ML, self._bmftc_BB, datadir, input_file, storm_file)  # Initialize Barrier3D and set matching parameters equal
+        self._parameter_file = parameter_file  # Specify file with Barrier3D initial conditions
+        self._barrier3d = init_equal(self._bmftc_ML, self._bmftc_BB, datadir, self._parameter_file, storm_file)  # Initialize Barrier3D and set matching parameters equal
 
         # ===========================================
         # Initialize break variables
