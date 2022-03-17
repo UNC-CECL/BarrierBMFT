@@ -91,7 +91,7 @@ class BarrierBMFT:
             relative_sea_level_rise=12,
             reference_concentration=20,
             slope_upland=0.005,
-            storm_file="StormSeries_VCR_Berm1pt9m_Slope0pt04_n4.npy",  # "StormTimeSeries_1000yr.npy",
+            storm_file="StormTimeSeries_1000yr.npy",  # "StormSeries_VCR_Berm1pt9m_Slope0pt04_n4.npy",
     ):
         """ Initialize Barrier3D and PyBMFT-C """
 
@@ -528,6 +528,7 @@ class BarrierBMFT:
         self._bmftc_ML.fetch[self._bmftc_ML.startyear + time_step] = self._bmftc_ML.bfo  # Save to array
         self._bmftc_BB.fetch[self._bmftc_BB.startyear + time_step] = self._bmftc_BB.bfo  # Save to array
 
+        # Update marsh scarp heigh parameter
         self._bmftc_BB._dmo = self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] + self._bmftc_BB.amp - self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m]
 
         # Store landscape type widths for this time step
