@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the BMFT-C model (python version)
 
 Copyright Ian RB Reeves
-Last updated: 10 March 2022
+Last updated: 17 March 2022
 """
 
 import numpy as np
@@ -32,14 +32,8 @@ def init_equal(bmftc_ML, bmftc_BB, datadir, input_file, storm_file):
     fid = datadir + input_file
 
     # Set storm series and duration
-    try:
-        set_yaml("storm_file", storm_file, fid)
-    except:
-        print("  !! YAML setting error, storm_file !!")
-    try:
-        set_yaml("TMAX", bmftc_ML.dur + 1, fid)  # [yrs] Duration of simulation
-    except:
-        print("  !! YAML setting error, TMAX !!")
+    set_yaml("storm_file", storm_file, fid)
+    set_yaml("TMAX", bmftc_ML.dur + 1, fid)  # [yrs] Duration of simulation
 
     # Initialize
     barrier3d = Barrier3dBmi()
@@ -80,7 +74,7 @@ def init_equal(bmftc_ML, bmftc_BB, datadir, input_file, storm_file):
 
     # Equalize Barrier3D/PyBMFT-C Values of Identical Parameters
     barrier3d.model._TMAX = bmftc_ML.dur + 1  # [yrs] Duration of simulation
-    barrier3d.model._RSLR = np.ones([len(barrier3d.model._RSLR) + 1]) * (bmftc_ML.RSLRi / 1000) / 10  # [m/yr] Relative sea-level rise rate, converted units
+    barrier3d.model._RSLR = np.ones([len(barrier3d.model.RSLR) + 1]) * (bmftc_ML.RSLRi / 1000) / 10  # [m/yr] Relative sea-level rise rate, converted units
     barrier3d.model._BayDepth = bmftc_ML.Bay_depth[bmftc_ML.startyear - 1] / 10  # [yrs] Initial depth of bay
 
     return barrier3d
@@ -394,7 +388,7 @@ class BarrierBMFT:
             # Determine volume of sed deposited past initial marsh edge and into bay
             sum_marsh_dep = np.sum(elevation_change_b3d[:x_m_change]) * (1 - self._OWspread)  # [m^3] Volume of overwash deposition landward of marsh edge deposited as marsh
             sum_bay_dep = np.sum(elevation_change_b3d[:x_m_change]) * self._OWspread  # [m^3] Volume of overwash deposition landward of marsh edge deposited across bay bottom
-            self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Half of overwash deposition into bay is dispersed, half remains at marsh edge to build marsh bondary landward; volume converted to mass
+            self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Overwash deposition into bay, volume converted to mass
             self._bmftc_ML._Fow_min = max(0, sum_bay_dep * self._bmftc_ML.rhos)  # [kg/yr] Same as above for ML instance
 
             # Add volume of carryover from last time step
@@ -434,7 +428,7 @@ class BarrierBMFT:
             # Determine volume of sed deposited past initial marsh edge and into bay
             sum_marsh_dep = np.sum(elevation_change_b3d[:x_m_change]) * (1 - self._OWspread)  # [m^3] Volume of overwash deposition landward of marsh edge deposited as marsh
             sum_bay_dep = np.sum(elevation_change_b3d[:x_m_change]) * self._OWspread  # [m^3] Volume of overwash deposition landward of marsh edge deposited across bay bottom
-            self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Half of overwash deposition into bay is dispersed, half remains at marsh edge to build marsh bondary landward; volume converted to mass
+            self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Overwash deposition into bay, volume converted to mass
             self._bmftc_ML._Fow_min = max(0, sum_bay_dep * self._bmftc_ML.rhos)  # [kg/yr] Same as above for ML instance
 
             # Add volume of carryover from last time step
@@ -477,7 +471,7 @@ class BarrierBMFT:
             # Determine volume of sed deposited past initial marsh edge and into bay
             sum_marsh_dep = np.sum(elevation_change_b3d[:x_m_change]) * (1 - self._OWspread)  # [m^3] Volume of overwash deposition landward of marsh edge deposited as marsh
             sum_bay_dep = np.sum(elevation_change_b3d[:x_m_change]) * self._OWspread  # [m^3] Volume of overwash deposition landward of marsh edge deposited across bay bottom
-            self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Half of overwash deposition into bay is dispersed, half remains at marsh edge to build marsh bondary landward; volume converted to mass
+            self._bmftc_BB._Fow_min = max(0, sum_bay_dep * self._bmftc_BB.rhos)  # [kg/yr] Overwash deposition into bay, volume converted to mass
             self._bmftc_ML._Fow_min = max(0, sum_bay_dep * self._bmftc_ML.rhos)  # [kg/yr] Same as above for ML instance
 
             # Add volume of carryover from last time step
@@ -506,7 +500,20 @@ class BarrierBMFT:
 
         # Calculate new marsh and "forest" edge positions after overwash
         self._bmftc_BB._x_m = self._bmftc_BB.x_m - progradation
-        self._bmftc_BB._x_f = np.where(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, :] > self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] + self._bmftc_BB.amp - self._bmftc_BB.Dmin + 0.03)[0][0]
+        try:
+            self._bmftc_BB._x_f = np.where(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, :] > self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] + self._bmftc_BB.amp - self._bmftc_BB.Dmin + 0.03)[0][0]
+        except IndexError:
+            self._bmftc_BB._x_f = self._bmftc_BB.B
+            # If x_f can't be found, barrier has drowned
+            self._bmftc_ML._dur = time_step
+            self._bmftc_ML._endyear = self._bmftc_ML.startyear + time_step
+            self._bmftc_BB._dur = time_step
+            self._bmftc_BB._endyear = self._bmftc_BB.startyear + time_step
+            self._BMFTC_Break = True
+            print("PyBMFT-C Simulation Break: marsh has completely drowned or basin is completely full")
+            return  # End simulation
+
+        # Store new positions
         self._bmftc_BB.Marsh_edge[self._bmftc_BB.startyear + time_step] = self._bmftc_BB.x_m  # Save to array
         self._bmftc_BB.Forest_edge[self._bmftc_BB.startyear + time_step] = self._bmftc_BB.x_f  # Save to array
 
