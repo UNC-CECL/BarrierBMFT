@@ -20,7 +20,7 @@ from barrier3d.tools import plot as B3Dfunc
 # ==================================================================================================================================================================================
 # Create an instance of the BMI class
 barrierbmft = BarrierBMFT()
-
+print(barrierbmft.name)
 
 # ==================================================================================================================================================================================
 # Run the BarrierBMFT model
@@ -60,6 +60,7 @@ plt.figure(figsize=(14, 7))
 plt.plot(aHd)
 plt.xlabel('Year')
 plt.ylabel('Avg. Dune Height (m)')  # Average Dune Height
+plt.title(barrierbmft.name)
 
 # ===========
 # plt.figure()

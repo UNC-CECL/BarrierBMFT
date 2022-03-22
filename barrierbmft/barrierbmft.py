@@ -87,6 +87,7 @@ class BarrierBMFT:
 
     def __init__(
             self,
+            name="Low Cbb",
             time_step_count=200,
             relative_sea_level_rise=9,
             reference_concentration=20,
@@ -172,6 +173,7 @@ class BarrierBMFT:
 
         # ===========================================
         # Initialize variables
+        self._name = name
         self._x_b_TS_ML = np.zeros([self._bmftc_ML.dur])
         self._x_b_TS_BB = np.zeros([self._bmftc_BB.dur])
         self._LandscapeTypeWidth_TS = np.zeros([self._bmftc_BB.dur, 5])
@@ -320,6 +322,7 @@ class BarrierBMFT:
 
                 NewDomain[:len(BarrierMarshTransect), w] = BarrierMarshTransect
                 NewDomain[len(BarrierMarshTransect):, w] = np.mean([self._bmftc_ML.db, self._bmftc_BB.db]) / 10 * -1
+                # NewDomain[len(BarrierMarshTransect):, w] = (self._barrier3d.model.SL - np.mean([self._bmftc_ML.db, self._bmftc_BB.db])) / 10
 
         self._barrier3d.model.InteriorDomain = NewDomain
 
@@ -593,3 +596,7 @@ class BarrierBMFT:
     @property
     def LandscapeTypeWidth_TS(self):
         return self._LandscapeTypeWidth_TS
+
+    @property
+    def name(self):
+        return self._name
