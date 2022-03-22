@@ -87,8 +87,8 @@ class BarrierBMFT:
 
     def __init__(
             self,
-            time_step_count=400,
-            relative_sea_level_rise=12,
+            time_step_count=200,
+            relative_sea_level_rise=9,
             reference_concentration=20,
             slope_upland=0.005,
             storm_file="StormTimeSeries_1000yr.npy",  # "StormSeries_VCR_Berm1pt9m_Slope0pt04.npy",
@@ -407,7 +407,8 @@ class BarrierBMFT:
 
             if progradation > 0:
                 # Add subaqueous elevation change
-                self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += new_marsh_height
+                # self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += new_marsh_height
+                self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += (self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] + self._bmftc_BB.amp - self._bmftc_BB.db) + new_marsh_height
                 # Store mass of overwash mineral sediment deposited across transect
                 self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += (new_marsh_height * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash
 
@@ -447,7 +448,9 @@ class BarrierBMFT:
 
             if progradation > 0:
                 # Add subaqueous elevation change
-                self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += new_marsh_height
+                # self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += new_marsh_height
+                self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] = (self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] + self._bmftc_BB.amp - self._bmftc_BB.db) + new_marsh_height
+
                 # Store mass of overwash mineral sediment deposited across transect
                 self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += (new_marsh_height * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash
 
@@ -490,7 +493,8 @@ class BarrierBMFT:
 
             if progradation > 0:
                 # Add subaqueous elevation change
-                self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += new_marsh_height
+                # self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += new_marsh_height
+                self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += (self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] + self._bmftc_BB.amp - self._bmftc_BB.db) + new_marsh_height
                 # Store mass of overwash mineral sediment deposited across transect
                 self._bmftc_BB.mineral_dep[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m - progradation: self._bmftc_BB.x_m] += (new_marsh_height * self._bmftc_BB.rhos * 1000)  # [g] Mass of pure mineral sediment deposited by overwash
 
