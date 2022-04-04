@@ -29,6 +29,7 @@ rslr = [3, 6, 9, 12, 15]
 co = [20, 30, 40, 50, 60]
 slope = [0.003]
 
+add = 0  # Pad input labels, optional
 
 # ==================================================================================================================================================================================
 # Run parameter space
@@ -39,15 +40,15 @@ def RunBatch(n):
     Sim = 0 + (SimNum * n)
 
     # Make new parameters file for this set of simulations
-    new_param_file = "Batch" + str(n) + "-barrier3d-parameters.yaml"
+    new_param_file = "Batch" + str(n + add) + "-barrier3d-parameters.yaml"
     shutil.copy("Input/Barrier3D/barrier3d-parameters.yaml", "Input/Barrier3D/" + new_param_file)
 
     # Make new parameters file for this set of simulations
-    storm_file = "StormSeries_VCR_Berm1pt9m_Slope0pt04_" + str(n) + ".npy"
+    storm_file = "StormSeries_VCR_Berm1pt9m_Slope0pt04_" + str(n + add) + ".npy"
     yearly_storms(
         datadir='Input/Barrier3D',
         storm_list_name="StormList_20k_VCR_Berm1pt9m_Slope0pt04.csv",
-        mean_yearly_storms=8.3,
+        mean_yearly_storms=8,
         SD_yearly_storms=5.9,
         model_years=SimDur + 2,
         bPlot=False,
@@ -63,6 +64,7 @@ def RunBatch(n):
 
                 # Create an instance of the BMI class and set input parameter values
                 barrierbmft = BarrierBMFT(
+                    name="Batch",
                     time_step_count=SimDur,
                     relative_sea_level_rise=rslr[r],
                     reference_concentration=co[c],
