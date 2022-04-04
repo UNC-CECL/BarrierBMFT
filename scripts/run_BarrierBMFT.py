@@ -120,21 +120,21 @@ plt.title("Mainland Elevation")
 # plt.ylabel("PyBMFT-C Back-Barrier Forest Edge Location [m]")
 
 # ===========
-plt.figure()
-fig = plt.gcf()
-fig.set_size_inches(7, 16)
-plt.subplot(3, 1, 1)
-bbscts = [(x - barrierbmft.barrier3d.model.x_b_TS[0]) * 10 for x in barrierbmft.barrier3d.model.x_b_TS][1:]
-plt.plot(bbscts)
-plt.ylabel("Barrier3D Forest Edge [m]")
-plt.subplot(3, 1, 2)
-bbbmftc = (barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear] - barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear]) * (-1)
-plt.plot(bbbmftc)
-plt.ylabel("PyBMFT-C Forest Edge [m]")
-plt.subplot(3, 1, 3)
-plt.plot(bbscts - bbbmftc)
-plt.xlabel("Time [yr]")
-plt.ylabel("Difference [m]")
+# plt.figure()
+# fig = plt.gcf()
+# fig.set_size_inches(7, 16)
+# plt.subplot(3, 1, 1)
+# bbscts = [(x - barrierbmft.barrier3d.model.x_b_TS[0]) * 10 for x in barrierbmft.barrier3d.model.x_b_TS][1:]
+# plt.plot(bbscts)
+# plt.ylabel("Barrier3D Forest Edge [m]")
+# plt.subplot(3, 1, 2)
+# bbbmftc = (barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear] - barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear]) * (-1)
+# plt.plot(bbbmftc)
+# plt.ylabel("PyBMFT-C Forest Edge [m]")
+# plt.subplot(3, 1, 3)
+# plt.plot(bbscts - bbbmftc)
+# plt.xlabel("Time [yr]")
+# plt.ylabel("Difference [m]")
 
 # ===========
 plt.figure()
@@ -219,6 +219,93 @@ plt.plot(barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear: barrie
 plt.xlabel("Time [yr]")
 plt.ylabel("X-Position [m]")
 plt.legend()
+
+# ===========
+plt.figure()
+fig = plt.gcf()
+fig.set_size_inches(7, 15)
+
+plt.subplot(4, 1, 1)
+plt.plot(barrierbmft.bmftc_BB.OCb[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1], label="Back-Barrier")
+plt.plot(barrierbmft.bmftc_ML.OCb[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1], label="Mainland")
+plt.xlabel("Time [yr]")
+plt.ylabel("Bay Org Cont")
+
+plt.subplot(4, 1, 2)
+plt.plot(barrierbmft.bmftc_BB.BaySedDensity[:barrierbmft.bmftc_ML.endyear + 1], label="Back-Barrier")
+plt.plot(barrierbmft.bmftc_ML.BaySedDensity[:barrierbmft.bmftc_ML.endyear + 1], label="Mainland")
+plt.xlabel("Time [yr]")
+plt.ylabel("Bay Sed Dens (rhob)")
+
+plt.subplot(4, 1, 3)
+plt.plot(barrierbmft.bmftc_BB.rhomt[:barrierbmft.bmftc_ML.endyear + 1], label="Back-Barrier")
+plt.plot(barrierbmft.bmftc_ML.rhomt[:barrierbmft.bmftc_ML.endyear + 1], label="Mainland")
+plt.xlabel("Time [yr]")
+plt.ylabel("Mar Edg Dens (rhom)")
+
+plt.subplot(4, 1, 4)
+plt.plot(barrierbmft.bmftc_BB.Bay_depth[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1], label="Back-Barrier")
+plt.plot(barrierbmft.bmftc_ML.Bay_depth[barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1], label="Mainland")
+plt.xlabel("Time [yr]")
+plt.ylabel("Bay Depth")
+plt.legend()
+
+# ===========
+plt.figure()
+fig = plt.gcf()
+fig.set_size_inches(12, 8)
+plt.rcParams.update({"font.size": 12})
+
+# Fe_min
+plt.subplot(2, 4, 1)
+plt.plot(barrierbmft.bmftc_BB.fluxes[0, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.plot(barrierbmft.bmftc_ML.fluxes[0, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.ylabel("Fe_min: marsh to bay")
+
+# Fe_org
+plt.subplot(2, 4, 2)
+plt.plot(barrierbmft.bmftc_BB.fluxes[1, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.plot(barrierbmft.bmftc_ML.fluxes[1, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.ylabel("Fe_org: marsh to bay")
+
+# Fm_min
+plt.subplot(2, 4, 3)
+plt.plot(barrierbmft.bmftc_BB.fluxes[2, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.plot(barrierbmft.bmftc_ML.fluxes[2, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.ylabel("Fm_min: bay to marsh")
+
+# Fm_org
+plt.subplot(2, 4, 4)
+plt.plot(barrierbmft.bmftc_BB.fluxes[3, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.plot(barrierbmft.bmftc_ML.fluxes[3, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.ylabel("Fm_org: bay to marsh")
+
+# Fc_min
+plt.subplot(2, 4, 5)
+plt.plot(barrierbmft.bmftc_BB.fluxes[4, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.plot(barrierbmft.bmftc_ML.fluxes[4, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.ylabel("Fc_min: external to bay")
+
+# Fc_org
+plt.subplot(2, 4, 6)
+plt.plot(barrierbmft.bmftc_BB.fluxes[5, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.plot(barrierbmft.bmftc_ML.fluxes[5, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.ylabel("Fc_org: external to bay")
+
+# Fb_min
+plt.subplot(2, 4, 7)
+plt.plot(barrierbmft.bmftc_BB.fluxes[6, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.plot(barrierbmft.bmftc_ML.fluxes[6, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.ylabel("Fb_min: net flux into bay")
+
+# Fb_org
+plt.subplot(2, 4, 8)
+plt.plot(barrierbmft.bmftc_BB.fluxes[7, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.plot(barrierbmft.bmftc_ML.fluxes[7, barrierbmft.bmftc_BB.startyear: barrierbmft.bmftc_BB.endyear + 1])
+plt.ylabel("Fb_org: net flux into bay")
+plt.legend(["BB", "ML"])
+plt.tight_layout()
+
 
 # ===========
 # plt.figure()
