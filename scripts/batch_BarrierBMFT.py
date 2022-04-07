@@ -21,22 +21,24 @@ from barrier3d.tools.input_files import yearly_storms
 # ==================================================================================================================================================================================
 # Define batch parameters
 
-Num = 5  # Number of runs at each combinations of parameter values
+Num = 3  # Number of runs at each combinations of parameter values
 SimDur = 400  # [Yr] Duration of each simulation
 
 # Parameter values
 rslr = [3, 6, 9, 12, 15]
 co = [20, 30, 40, 50, 60]
-slope = [0.003]
+slope = [0.005]
 
 add = 0  # Pad input labels, optional
 
 # ==================================================================================================================================================================================
 # Run parameter space
 
+
 def RunBatch(n):
+
     SimNum = len(rslr) * len(co) * len(slope)
-    WidthData = np.zeros([6, len(rslr), len(co), len(slope)])
+    WidthData = np.zeros([8, len(rslr), len(co), len(slope)])
     Sim = 0 + (SimNum * n)
 
     # Make new parameters file for this set of simulations
@@ -47,7 +49,7 @@ def RunBatch(n):
     storm_file = "StormSeries_VCR_Berm1pt9m_Slope0pt04_" + str(n + add) + ".npy"
     yearly_storms(
         datadir='Input/Barrier3D',
-        storm_list_name="StormList_20k_VCR_Berm1pt9m_Slope0pt04.csv",
+        storm_list_name="StormList.npy",
         mean_yearly_storms=8,
         SD_yearly_storms=5.9,
         model_years=SimDur + 2,
@@ -93,6 +95,8 @@ def RunBatch(n):
                 bay_w = widths[-1, 2] - widths[0, 2]
                 MLmarsh_w = widths[-1, 3] - widths[0, 3]
                 forest_w = widths[-1, 4] - widths[0, 4]
+                BBpond_w = widths[-1, 5] - widths[0, 5]
+                MLpond_w = widths[-1, 6] - widths[0, 6]
 
                 # Calculate shoreline change
                 sc = int(barrierbmft.barrier3d.model.ShorelineChange)
@@ -103,7 +107,9 @@ def RunBatch(n):
                 WidthData[2, r, c, s] = bay_w
                 WidthData[3, r, c, s] = MLmarsh_w
                 WidthData[4, r, c, s] = forest_w
-                WidthData[5, r, c, s] = sc
+                WidthData[5, r, c, s] = BBpond_w
+                WidthData[6, r, c, s] = MLpond_w
+                WidthData[7, r, c, s] = sc
 
                 # Save elevation array
                 whole_transect = []
@@ -136,6 +142,8 @@ BayWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
 MLMarshWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
 ForestWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
 ShorelineChange = np.zeros([Num, len(rslr), len(co), len(slope)])
+BBMarshPondWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
+MLMarshPondWidth = np.zeros([Num, len(rslr), len(co), len(slope)])
 
 # ==================================================================================================================================================================================
 # Run the BarrierBMFT batch
@@ -144,7 +152,7 @@ ShorelineChange = np.zeros([Num, len(rslr), len(co), len(slope)])
 Time = time.time()
 
 # num_cores = multiprocessing.cpu_count()
-num_cores = int(min(Num, 25))
+num_cores = 3
 print('Cores: ' + str(num_cores))
 print('Running...')
 
@@ -158,7 +166,10 @@ for N in range(Num):
     BayWidth[N, :, :, :] = PS[2, :, :, :]
     MLMarshWidth[N, :, :, :] = PS[3, :, :, :]
     ForestWidth[N, :, :, :] = PS[4, :, :, :]
-    ShorelineChange[N, :, :, :] = PS[5, :, :, :]
+    BBMarshPondWidth[N, :, :, :] = PS[5, :, :, :]
+    BBMarshPondWidth[N, :, :, :] = PS[6, :, :, :]
+    ShorelineChange[N, :, :, :] = PS[7, :, :, :]
+
 
 # Save batch data arrays
 np.save(directory + '/Widths_Barrier.npy', BarrierWidth)
@@ -166,6 +177,8 @@ np.save(directory + '/Widths_BBMarsh.npy', BBMarshWidth)
 np.save(directory + '/Widths_Bay.npy', BayWidth)
 np.save(directory + '/Widths_MLMarsh.npy', MLMarshWidth)
 np.save(directory + '/Widths_Forest.npy', ForestWidth)
+np.save(directory + '/Widths_BBMarshPond.npy', BBMarshPondWidth)
+np.save(directory + '/Widths_MLMarshPond.npy', MLMarshPondWidth)
 np.save(directory + '/ShorelineChange.npy', ShorelineChange)
 
 # Print elapsed time of batch run

@@ -176,7 +176,7 @@ class BarrierBMFT:
         self._name = name
         self._x_b_TS_ML = np.zeros([self._bmftc_ML.dur])
         self._x_b_TS_BB = np.zeros([self._bmftc_BB.dur])
-        self._LandscapeTypeWidth_TS = np.zeros([self._bmftc_BB.dur, 5])
+        self._LandscapeTypeWidth_TS = np.zeros([self._bmftc_BB.dur, 7])
         self._bay_overwash_carryover = 0  # [m^3] Volume of overwash deposition into back-barrier bay from previous year that did not fill new cell up to sea level; is added to overwash bay dep in following year
         initial_BB_subaerial_width = self._bmftc_BB.B - self._bmftc_BB.x_f
         self._x_s_offset = initial_BB_subaerial_width - (self._barrier3d.model.InteriorWidth_AvgTS[-1] * 10)  # Initial location of B in PyBMFT-C relative to x_s_initial in Barrier3D
@@ -547,8 +547,10 @@ class BarrierBMFT:
             barrier_width = len(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_f:])
         BB_marsh_width = (self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m: self._bmftc_BB.x_f] > self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] - self._bmftc_BB.amp).sum()
         ML_marsh_width = (self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step, self._bmftc_ML.x_m: self._bmftc_ML.x_f] > self._bmftc_ML.msl[self._bmftc_ML.startyear + time_step] - self._bmftc_ML.amp).sum()
+        BB_marsh_pond_width = (self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m: self._bmftc_BB.x_f] < self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] - self._bmftc_BB.amp).sum()
+        ML_marsh_pond_width = (self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step, self._bmftc_ML.x_m: self._bmftc_ML.x_f] < self._bmftc_ML.msl[self._bmftc_ML.startyear + time_step] - self._bmftc_ML.amp).sum()
         forest_width = len(self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step, self._bmftc_ML.x_f:])
-        self._LandscapeTypeWidth_TS[time_step, :] = [barrier_width, BB_marsh_width, self._bmftc_BB.bfo, ML_marsh_width, forest_width]
+        self._LandscapeTypeWidth_TS[time_step, :] = [barrier_width, BB_marsh_width, self._bmftc_BB.bfo, ML_marsh_width, forest_width, BB_marsh_pond_width, ML_marsh_pond_width]
 
         # ===================================================================================================================================================================================================================================
 
