@@ -13,6 +13,7 @@ import numpy as np
 from datetime import datetime
 import multiprocessing
 import shutil
+import random
 from joblib import Parallel, delayed
 
 from barrierbmft.barrierbmft import BarrierBMFT
@@ -31,12 +32,56 @@ slope = [0.005]
 
 add = 0  # Pad input labels, optional
 
+
 # ==================================================================================================================================================================================
-# Run parameter space
+# Batch code
+
+# Makes storm series
+def makeStormSeries(
+        datadir,
+        storm_list_filename,
+        StormStart,
+        TMAX,
+        mean_storm,
+        SD_storm,
+        MHW,
+        output_filename,
+):
+
+    # Load input file
+    StormList = np.load(datadir + storm_list_filename)
+
+    # Time series
+    StormSeries = np.zeros([StormStart, 5])
+    for t in range(StormStart, TMAX):
+        # Calculate number of storms in year
+        numstorm = round(np.random.normal(mean_storm, SD_storm))
+
+        if numstorm < 0:
+            numstorm = 0
+        stormTS = np.zeros([numstorm, 5])
+
+        # Select storms for year
+        for n in range(numstorm):
+            storm = random.randint(1, len(StormList) - 1)
+
+            dur = StormList[storm, 1]  # Duration
+            Rhigh = StormList[storm, 2]  # TWL
+            period = StormList[storm, 4]  # Tp
+            Rlow = StormList[storm, 6]  # Rlow
+
+            stormTS[n, 0] = t
+            stormTS[n, 1] = Rhigh / 10 - MHW
+            stormTS[n, 2] = Rlow / 10 - MHW
+            stormTS[n, 3] = period
+            stormTS[n, 4] = round(dur / 2)  # Divided by two assuming TWL only for only half of storm
+
+        # Save
+        StormSeries = np.vstack([StormSeries, stormTS])
+        np.save(datadir + output_filename, StormSeries)
 
 
 def RunBatch(n):
-
     SimNum = len(rslr) * len(co) * len(slope)
     WidthData = np.zeros([8, len(rslr), len(co), len(slope)])
     Sim = 0 + (SimNum * n)
@@ -46,15 +91,15 @@ def RunBatch(n):
     shutil.copy("Input/Barrier3D/barrier3d-parameters.yaml", "Input/Barrier3D/" + new_param_file)
 
     # Make new parameters file for this set of simulations
-    storm_file = "StormSeries_VCR_Berm1pt9m_Slope0pt04_" + str(n + add) + ".npy"
-    yearly_storms(
-        datadir='Input/Barrier3D',
-        storm_list_name="StormList.npy",
-        mean_yearly_storms=8,
-        SD_yearly_storms=5.9,
-        model_years=SimDur + 2,
-        bPlot=False,
-        bSave=True,
+    storm_file = "StormSeries_VCR_StormList_" + str(n + add) + ".npy"
+    makeStormSeries(
+        datadir='Input/Barrier3D/',
+        storm_list_filename="StormList.npy",
+        StormStart=2,
+        TMAX=SimDur + 2,
+        mean_storm=8,
+        SD_storm=5.9,
+        MHW=0.046,  # [dam]
         output_filename=storm_file,
     )
 
@@ -169,7 +214,6 @@ for N in range(Num):
     BBMarshPondWidth[N, :, :, :] = PS[5, :, :, :]
     BBMarshPondWidth[N, :, :, :] = PS[6, :, :, :]
     ShorelineChange[N, :, :, :] = PS[7, :, :, :]
-
 
 # Save batch data arrays
 np.save(directory + '/Widths_Barrier.npy', BarrierWidth)
