@@ -345,6 +345,8 @@ BBmarsh = widths[:, 1]
 bay = widths[:, 2]
 MLmarsh = widths[:, 3]
 forest = widths[:, 4]
+BBpond = widths[:, 5]
+MLpond = widths[:, 6]
 barrier_marsh = barrier + BBmarsh
 
 plt.figure(figsize=(15, 15))
@@ -354,10 +356,12 @@ plt.plot(BBmarsh / total_width, c="red")
 plt.plot(bay / total_width, c="blue")
 plt.plot(MLmarsh / total_width, c="orange")
 plt.plot(forest / total_width, c="green")
+plt.plot(BBpond / total_width, c="red", linestyle='dashed')
+plt.plot(MLpond / total_width, c="orange", linestyle='dashed')
 plt.plot(barrier_marsh / total_width, c="black")
 plt.xlabel("Time [yr]")
 plt.ylabel("Proportion of Entire Landscape Width")
-plt.legend(["Barrier", "Back-Barrier Marsh", "Bay", "Mainland Marsh", "Forest", "Barrier + Back-Barrier Marsh"])
+plt.legend(["Barrier", "Back-Barrier Marsh", "Bay", "Mainland Marsh", "Forest", "Back-Barrier Marsh Pond", "Mainland Marsh Pond", "Barrier + Back-Barrier Marsh"])
 
 # ===========
 plt.figure()
@@ -373,6 +377,7 @@ plt.ylabel("Barrier [m]")
 # Back-Barrier Marsh
 plt.subplot(2, 3, 2)
 plt.plot(BBmarsh, c="red")
+plt.plot(BBpond, c="red", linestyle='dashed')
 plt.ylabel("Back-Barrier Marsh [m]")
 
 # Barrier + Marsh
@@ -388,6 +393,7 @@ plt.ylabel("Bay [m]")
 # Mainland marsh
 plt.subplot(2, 3, 5)
 plt.plot(MLmarsh, c="red")
+plt.plot(MLpond, c="red", linestyle='dashed')
 plt.ylabel("Mainland Marsh [m]")
 plt.xlabel("Time [yr]")
 
