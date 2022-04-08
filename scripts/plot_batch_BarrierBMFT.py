@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 # ==================================================================================================================================================================================
 # Define batch parameters
 
-Num = 1  # Number of runs at each combinations of parameter values
 SimDur = 400  # [Yr] Duration of each simulation
 
 # Parameter values
@@ -28,8 +27,8 @@ SimNum = len(rslr) * len(co) * len(slope)
 # filename = '/BarrierBMFT/Output/Batch_2022_0207_13_37/'
 # filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0301_21_51/'
 # filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0302_23_57/'
-# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0303_11_59/'
-filename = '/Users/ianreeves/PycharmProjects/BarrierBMFT/Output/Batch_2022_0313_17_28/'
+filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0407_17_18/'
+# filename = '/Users/reevesi/PycharmProjects/BarrierBMFT/Output/Batch_2022_0408_13_55/'
 
 BarrierWidth = np.load(filename + 'Widths_Barrier.npy')
 BarrierWidth = np.mean(BarrierWidth[:, :, :, 0], axis=0)
@@ -58,13 +57,23 @@ ForestWidthOrig = ForestWidth
 ForestWidth = np.rot90(ForestWidth)
 ForestWidth = np.flipud(ForestWidth)
 
+BBPondWidth = np.load(filename + 'Widths_BBMarshPond.npy')
+BBPondWidth = np.mean(BBPondWidth[:, :, :, 0], axis=0)
+BBPondWidth = np.rot90(BBPondWidth)
+BBPondWidth = np.flipud(BBPondWidth)
+
+MLPondWidth = np.load(filename + 'Widths_MLMarshPond.npy')
+MLPondWidth = np.mean(MLPondWidth[:, :, :, 0], axis=0)
+MLPondWidth = np.rot90(MLPondWidth)
+MLPondWidth = np.flipud(MLPondWidth)
+
 ShorelineChange = np.load(filename + 'ShorelineChange.npy')
 ShorelineChange = np.mean(ShorelineChange[:, :, :, 0], axis=0)
 ShorelineChange = ShorelineChange * 10  # Convert to m
 ShorelineChange = np.rot90(ShorelineChange)
 ShorelineChange = np.flipud(ShorelineChange)
 
-SimEl = np.load(filename + 'Sim21_elevation.npy', allow_pickle=True)
+SimEl = np.load(filename + 'Sim1_elevation.npy', allow_pickle=True)
 
 # ==================================================================================================================================================================================
 # Plot
@@ -152,7 +161,7 @@ plt.figure(figsize=(12, 6))
 plt.xlabel("Distance Cross-Shore [m]")
 plt.ylabel("Elevation [m]")
 # plt.title("Sim 25")
-for t in range(0, SimDur, 10):
+for t in range(0, len(SimEl), 10):
     elev = SimEl[t]
     plt.plot(elev)
 
