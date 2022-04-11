@@ -212,7 +212,7 @@ for N in range(Num):
     MLMarshWidth[N, :, :, :] = PS[3, :, :, :]
     ForestWidth[N, :, :, :] = PS[4, :, :, :]
     BBMarshPondWidth[N, :, :, :] = PS[5, :, :, :]
-    BBMarshPondWidth[N, :, :, :] = PS[6, :, :, :]
+    MLMarshPondWidth[N, :, :, :] = PS[6, :, :, :]
     ShorelineChange[N, :, :, :] = PS[7, :, :, :]
 
 # Save batch data arrays

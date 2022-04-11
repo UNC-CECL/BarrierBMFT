@@ -18,17 +18,18 @@ SimDur = 400  # [Yr] Duration of each simulation
 # Parameter values
 rslr = [3, 6, 9, 12, 15]
 co = [20, 30, 40, 50, 60]
-slope = [0.005]
+slope = [0.05]
 
 SimNum = len(rslr) * len(co) * len(slope)
+
+ElSim = 25  # Simulation number for elevation plot
 
 # ==================================================================================================================================================================================
 # Load data
 # filename = '/BarrierBMFT/Output/Batch_2022_0207_13_37/'
-# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0301_21_51/'
-# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0302_23_57/'
-filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0407_17_18/'
 # filename = '/Users/reevesi/PycharmProjects/BarrierBMFT/Output/Batch_2022_0408_13_55/'
+# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0408_19_32/'
+filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0410_00_57/'
 
 BarrierWidth = np.load(filename + 'Widths_Barrier.npy')
 BarrierWidth = np.mean(BarrierWidth[:, :, :, 0], axis=0)
@@ -73,7 +74,7 @@ ShorelineChange = ShorelineChange * 10  # Convert to m
 ShorelineChange = np.rot90(ShorelineChange)
 ShorelineChange = np.flipud(ShorelineChange)
 
-SimEl = np.load(filename + 'Sim1_elevation.npy', allow_pickle=True)
+SimEl = np.load(filename + 'Sim' + str(ElSim) + '_elevation.npy', allow_pickle=True)
 
 # ==================================================================================================================================================================================
 # Plot
@@ -156,12 +157,78 @@ plt.title('Ocean Shoreline Change')
 plt.tight_layout()
 
 # --------------------------
+# Marsh + Pond
+cmap = 'RdBu'
+Fig = plt.figure(figsize=(16, 3.4))
+plt.rcParams.update({'font.size': 10, 'font.family': 'Arial'})
+
+ax = Fig.add_subplot(161)
+cax = ax.matshow(BarrierWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+ax.xaxis.set_ticks_position('bottom')
+# cbar = Fig.colorbar(cax)
+# cbar.set_label('Change in Width', rotation=270, labelpad=20)
+ax.set_xticklabels(xtic)
+ax.set_yticklabels(ytic)
+plt.ylabel(ylab)
+plt.title('Barrier')
+
+ax = Fig.add_subplot(162)
+cax = ax.matshow(BBMarshWidth + MLPondWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+ax.xaxis.set_ticks_position('bottom')
+# cbar = Fig.colorbar(cax)
+# cbar.set_label('Change in Width', rotation=270, labelpad=20)
+ax.set_xticklabels(xtic)
+ax.set_yticklabels(ytic)
+plt.title('Back-Barrier Marsh')
+
+ax = Fig.add_subplot(163)
+cax = ax.matshow(BayWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+ax.xaxis.set_ticks_position('bottom')
+# cbar = Fig.colorbar(cax)
+# cbar.set_label('Change in Width', rotation=270, labelpad=20)
+ax.set_xticklabels(xtic)
+ax.set_yticklabels(ytic)
+plt.xlabel(xlab)
+plt.title('Bay')
+
+ax = Fig.add_subplot(164)
+cax = ax.matshow(MLMarshWidth + BBPondWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+ax.xaxis.set_ticks_position('bottom')
+# cbar = Fig.colorbar(cax)
+# cbar.set_label('Change in Width', rotation=270, labelpad=20)
+ax.set_xticklabels(xtic)
+ax.set_yticklabels(ytic)
+plt.title('Mainland Marsh')
+
+ax = Fig.add_subplot(165)
+cax = ax.matshow(ForestWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+ax.xaxis.set_ticks_position('bottom')
+# cbar = Fig.colorbar(cax)
+# cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+ax.set_xticklabels(xtic)
+ax.set_yticklabels(ytic)
+plt.title('Forest')
+plt.tight_layout()
+
+ax = Fig.add_subplot(166)
+# cax = ax.matshow(sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+cax = ax.matshow(ShorelineChange, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+ax.xaxis.set_ticks_position('bottom')
+# cbar = Fig.colorbar(cax)
+# cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+ax.set_xticklabels(xtic)
+ax.set_yticklabels(ytic)
+# plt.title('Total Landscape Width')
+plt.title('Ocean Shoreline Change')
+plt.tight_layout()
+
+# --------------------------
 
 plt.figure(figsize=(12, 6))
 plt.xlabel("Distance Cross-Shore [m]")
 plt.ylabel("Elevation [m]")
 # plt.title("Sim 25")
-for t in range(0, len(SimEl), 10):
+for t in range(0, len(SimEl), 25):
     elev = SimEl[t]
     plt.plot(elev)
 
