@@ -170,6 +170,21 @@ def RunBatch(n):
 
                 np.save(directory + '/Sim' + str(Sim) + '_elevation.npy', whole_transect)
 
+                # Save widths over time
+                np.save(directory + '/Sim' + str(Sim) + '_widthsTS.npy', widths)
+
+                # Save stats
+                stats = np.zeros([SimDur, 7])
+                stats[:len(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear + t - 1:]), 0] = barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear + t - 1:]  # BB marsh edge
+                stats[:len(barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear + t - 1:]), 1] = barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear + t - 1:]  # BB "forest" edge
+                stats[:len(barrierbmft.bmftc_ML.Marsh_edge[barrierbmft.bmftc_ML.startyear + t - 1:]), 2] = barrierbmft.bmftc_ML.Marsh_edge[barrierbmft.bmftc_ML.startyear + t - 1:]  # ML marsh edge
+                stats[:len(barrierbmft.bmftc_ML.Forest_edge[barrierbmft.bmftc_ML.startyear + t - 1:]), 3] = barrierbmft.bmftc_ML.Forest_edge[barrierbmft.bmftc_ML.startyear + t - 1:]  # ML forest edge
+                aHd = [a * 10 for a in barrierbmft.barrier3d.model.Hd_AverageTS]  # [m] Average dune height
+                stats[:len(aHd[1:-1]), 4] = aHd[1:-1]
+                stats[:len(barrierbmft.bmftc_ML.Bay_depth[barrierbmft.bmftc_ML.startyear + t - 1:]), 5] = barrierbmft.bmftc_ML.Bay_depth[barrierbmft.bmftc_ML.startyear + t - 1:]  # Bay depth
+                stats[:len(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear + t - 1:]), 6] = barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear + t - 1:]  # Bay fetch
+                np.save(directory + '/Sim' + str(Sim) + '_statsTS.npy', stats)
+
     return WidthData
 
 

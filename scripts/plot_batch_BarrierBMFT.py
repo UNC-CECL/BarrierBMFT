@@ -18,18 +18,23 @@ SimDur = 400  # [Yr] Duration of each simulation
 # Parameter values
 rslr = [3, 6, 9, 12, 15]
 co = [20, 30, 40, 50, 60]
-slope = [0.05]
+slope = [0.005]
 
 SimNum = len(rslr) * len(co) * len(slope)
 
-ElSim = 25  # Simulation number for elevation plot
+ElSim = 21  # Simulation number for elevation plot
 
 # ==================================================================================================================================================================================
 # Load data
 # filename = '/BarrierBMFT/Output/Batch_2022_0207_13_37/'
 # filename = '/Users/reevesi/PycharmProjects/BarrierBMFT/Output/Batch_2022_0408_13_55/'
 # filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0408_19_32/'
-filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0410_00_57/'
+# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0410_00_57/'
+
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_05/'  # 4
+filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_09/'  # 5
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_11/'  # 6
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_13/'  # 7
 
 BarrierWidth = np.load(filename + 'Widths_Barrier.npy')
 BarrierWidth = np.mean(BarrierWidth[:, :, :, 0], axis=0)
@@ -227,7 +232,7 @@ plt.tight_layout()
 plt.figure(figsize=(12, 6))
 plt.xlabel("Distance Cross-Shore [m]")
 plt.ylabel("Elevation [m]")
-# plt.title("Sim 25")
+plt.title("Sim" + str(ElSim))
 for t in range(0, len(SimEl), 25):
     elev = SimEl[t]
     plt.plot(elev)
