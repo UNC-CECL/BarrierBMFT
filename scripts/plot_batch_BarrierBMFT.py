@@ -17,12 +17,18 @@ SimDur = 400  # [Yr] Duration of each simulation
 
 # Parameter values
 rslr = [3, 6, 9, 12, 15]
-co = [20, 30, 40, 50, 60]
+# co = [20, 30, 40, 50, 60]
+co = [40, 50, 60, 70, 80]
 slope = [0.005]
 
 SimNum = len(rslr) * len(co) * len(slope)
 
-ElSim = 21  # Simulation number for elevation plot
+ElSim = 55  # Simulation number for elevation plot
+
+plot_param_space = True
+plot_elev = False
+plot_minus = False
+plot_dune_width = True
 
 # ==================================================================================================================================================================================
 # Load data
@@ -32,9 +38,29 @@ ElSim = 21  # Simulation number for elevation plot
 # filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0410_00_57/'
 
 # filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_05/'  # 4
-filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_09/'  # 5
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_09/'  # 5
 # filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_11/'  # 6
 # filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_13/'  # 7
+
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_16/'  # 9
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_19/'  # 10
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_21/'  # 11
+
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_26/'  # 12
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_29/'  # 13
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_31/'  # 14
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_37/'  # 15
+
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0418_16_13/'  # 16
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0418_16_17/'  # 17
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0418_16_20/'  # 18
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0418_16_25/'  # 19
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0418_16_33/'  # 21
+
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0421_14_57/'  # 26
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0422_00_23/'  # 29
+# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0422_00_25/'  # 30
+filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0422_00_27/'  # 31
 
 BarrierWidth = np.load(filename + 'Widths_Barrier.npy')
 BarrierWidth = np.mean(BarrierWidth[:, :, :, 0], axis=0)
@@ -84,188 +110,228 @@ SimEl = np.load(filename + 'Sim' + str(ElSim) + '_elevation.npy', allow_pickle=T
 # ==================================================================================================================================================================================
 # Plot
 
-xtic = ['', '3', '6', '9', '12', '15']
-ytic = ['', '20', '30', '40', '50', '60']
+if plot_param_space:
 
-xlab = 'RSLR [mm/yr]'
-ylab = 'Back-Barrier SSC [mg/L]'
+    xtic = ['', '3', '6', '9', '12', '15']
+    # ytic = ['', '20', '30', '40', '50', '60']
+    ytic = ['', '40', '50', '60', '70', '80']
 
-sumwidth = BarrierWidth + BBMarshWidth + BayWidth + MLMarshWidth + ForestWidth
-all_widths = np.concatenate((BarrierWidth, BBMarshWidth, BayWidth, MLMarshWidth, ForestWidth))
-maximum = max(abs(int(np.min(all_widths))), abs(int(np.max(all_widths))))
-vmax = maximum
-vmin = -maximum
+    xlab = 'RSLR [mm/yr]'
+    ylab = 'Back-Barrier SSC [mg/L]'
+
+    sumwidth = BarrierWidth + BBMarshWidth + BayWidth + MLMarshWidth + ForestWidth
+    all_widths = np.concatenate((BarrierWidth, BBMarshWidth, BayWidth, MLMarshWidth, ForestWidth))
+    # all_widths = np.concatenate((BarrierWidth, BBMarshWidth, BayWidth, MLMarshWidth, ForestWidth, ShorelineChange))
+    maximum = max(abs(int(np.min(all_widths))), abs(int(np.max(all_widths))))
+    vmax = maximum
+    vmin = -maximum
 
 
-cmap = 'RdBu'
-Fig = plt.figure(figsize=(16, 3.4))
-plt.rcParams.update({'font.size': 10, 'font.family': 'Arial'})
+    cmap = 'RdBu'
+    Fig = plt.figure(figsize=(16, 3.4))
+    plt.rcParams.update({'font.size': 10, 'font.family': 'Arial'})
 
-ax = Fig.add_subplot(161)
-cax = ax.matshow(BarrierWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-plt.ylabel(ylab)
-plt.title('Barrier')
+    ax = Fig.add_subplot(161)
+    cax = ax.matshow(BarrierWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.ylabel(ylab)
+    plt.title('Barrier')
 
-ax = Fig.add_subplot(162)
-cax = ax.matshow(BBMarshWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-plt.title('Back-Barrier Marsh')
+    ax = Fig.add_subplot(162)
+    cax = ax.matshow(BBMarshWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.title('Back-Barrier Marsh')
 
-ax = Fig.add_subplot(163)
-cax = ax.matshow(BayWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-plt.xlabel(xlab)
-plt.title('Bay')
+    ax = Fig.add_subplot(163)
+    cax = ax.matshow(BayWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.xlabel(xlab)
+    plt.title('Bay')
 
-ax = Fig.add_subplot(164)
-cax = ax.matshow(MLMarshWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-plt.title('Mainland Marsh')
+    ax = Fig.add_subplot(164)
+    cax = ax.matshow(MLMarshWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.title('Mainland Marsh')
 
-ax = Fig.add_subplot(165)
-cax = ax.matshow(ForestWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-plt.title('Forest')
-plt.tight_layout()
+    ax = Fig.add_subplot(165)
+    cax = ax.matshow(ForestWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.title('Forest')
+    plt.tight_layout()
 
-ax = Fig.add_subplot(166)
-# cax = ax.matshow(sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-cax = ax.matshow(ShorelineChange, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-# plt.title('Total Landscape Width')
-plt.title('Ocean Shoreline Change')
-plt.tight_layout()
+    ax = Fig.add_subplot(166)
+    # cax = ax.matshow(sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    cax = ax.matshow(ShorelineChange, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    # plt.title('Total Landscape Width')
+    plt.title('Ocean Shoreline Change')
+    plt.tight_layout()
 
-# --------------------------
-# Marsh + Pond
-cmap = 'RdBu'
-Fig = plt.figure(figsize=(16, 3.4))
-plt.rcParams.update({'font.size': 10, 'font.family': 'Arial'})
+    # --------------------------
+    # Marsh + Pond
+    cmap = 'RdBu'
+    Fig = plt.figure(figsize=(16, 3.4))
+    plt.rcParams.update({'font.size': 10, 'font.family': 'Arial'})
 
-ax = Fig.add_subplot(161)
-cax = ax.matshow(BarrierWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-plt.ylabel(ylab)
-plt.title('Barrier')
+    ax = Fig.add_subplot(161)
+    cax = ax.matshow(BarrierWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.ylabel(ylab)
+    plt.title('Barrier')
 
-ax = Fig.add_subplot(162)
-cax = ax.matshow(BBMarshWidth + MLPondWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-plt.title('Back-Barrier Marsh')
+    ax = Fig.add_subplot(162)
+    cax = ax.matshow(BBMarshWidth + BBPondWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.title('Back-Barrier Marsh')
 
-ax = Fig.add_subplot(163)
-cax = ax.matshow(BayWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-plt.xlabel(xlab)
-plt.title('Bay')
+    ax = Fig.add_subplot(163)
+    cax = ax.matshow(BayWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.xlabel(xlab)
+    plt.title('Bay')
 
-ax = Fig.add_subplot(164)
-cax = ax.matshow(MLMarshWidth + BBPondWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-plt.title('Mainland Marsh')
+    ax = Fig.add_subplot(164)
+    cax = ax.matshow(MLMarshWidth + MLPondWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.title('Mainland Marsh')
 
-ax = Fig.add_subplot(165)
-cax = ax.matshow(ForestWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-plt.title('Forest')
-plt.tight_layout()
+    ax = Fig.add_subplot(165)
+    cax = ax.matshow(ForestWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.title('Forest')
+    plt.tight_layout()
 
-ax = Fig.add_subplot(166)
-# cax = ax.matshow(sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-cax = ax.matshow(ShorelineChange, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-ax.xaxis.set_ticks_position('bottom')
-# cbar = Fig.colorbar(cax)
-# cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
-ax.set_xticklabels(xtic)
-ax.set_yticklabels(ytic)
-# plt.title('Total Landscape Width')
-plt.title('Ocean Shoreline Change')
-plt.tight_layout()
-
-# --------------------------
-
-plt.figure(figsize=(12, 6))
-plt.xlabel("Distance Cross-Shore [m]")
-plt.ylabel("Elevation [m]")
-plt.title("Sim" + str(ElSim))
-for t in range(0, len(SimEl), 25):
-    elev = SimEl[t]
-    plt.plot(elev)
+    ax = Fig.add_subplot(166)
+    # cax = ax.matshow(sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    cax = ax.matshow(ShorelineChange, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    # plt.title('Total Landscape Width')
+    plt.title('Ocean Shoreline Change')
+    plt.tight_layout()
 
 # --------------------------
-# Subtract forest width change from ML marsh change
-# Fig = plt.figure(figsize=(8, 8))
-# ax = Fig.add_subplot(111)
-# plt.xlabel("RSLR [mm/yr]")
-# plt.ylabel("Back-Barrier SSC [mg/L]")
-# plt.title("Mainland Marsh (Minus Forest Change)")
-# cax = ax.matshow(MLMarshWidth + ForestWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-# ax.xaxis.set_ticks_position('bottom')
-# # cbar = Fig.colorbar(cax)
-# # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
-# ax.set_xticklabels(xtic)
-# ax.set_yticklabels(ytic)
-# plt.tight_layout()
+if plot_elev:
+    plt.figure(figsize=(12, 6))
+    plt.xlabel("Distance Cross-Shore [m]")
+    plt.ylabel("Elevation [m]")
+    plt.title("Sim" + str(ElSim))
+    for t in range(0, len(SimEl), 50):
+        elev = SimEl[t]
+        plt.plot(elev)
 
-# Subtract total landscape width change from bay change
-# Fig = plt.figure(figsize=(8, 8))
-# ax = Fig.add_subplot(111)
-# plt.xlabel("RSLR [mm/yr]")
-# plt.ylabel("Back-Barrier SSC [mg/L]")
-# plt.title("Bay (Minus Total Landscape Change)")
-# cax = ax.matshow(BayWidth + sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-# ax.xaxis.set_ticks_position('bottom')
-# # cbar = Fig.colorbar(cax)
-# # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
-# ax.set_xticklabels(xtic)
-# ax.set_yticklabels(ytic)
-# plt.tight_layout()
+# --------------------------
+if plot_minus:
+
+    # Subtract forest width change from ML marsh change
+    Fig = plt.figure(figsize=(8, 8))
+    ax = Fig.add_subplot(111)
+    plt.xlabel("RSLR [mm/yr]")
+    plt.ylabel("Back-Barrier SSC [mg/L]")
+    plt.title("Mainland Marsh (Minus Forest Change)")
+    cax = ax.matshow(MLMarshWidth + ForestWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.tight_layout()
+
+    # Subtract total landscape width change from bay change
+    Fig = plt.figure(figsize=(8, 8))
+    ax = Fig.add_subplot(111)
+    plt.xlabel("RSLR [mm/yr]")
+    plt.ylabel("Back-Barrier SSC [mg/L]")
+    plt.title("Bay (Minus Total Landscape Change)")
+    cax = ax.matshow(BayWidth + sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+    plt.tight_layout()
+
+# --------------------------
+if plot_dune_width:
+
+    SimWidths = np.load(filename + 'Sim' + str(ElSim) + '_widthsTS.npy', allow_pickle=True)
+    SimStats = np.load(filename + 'Sim' + str(ElSim) + '_statsTS.npy', allow_pickle=True)
+
+    aHd = SimStats[:, 4]
+
+    widths = SimWidths
+    total_width = np.sum(widths, axis=1)
+    barrier = widths[:, 0]
+    BBmarsh = widths[:, 1]
+    bay = widths[:, 2]
+    MLmarsh = widths[:, 3]
+    forest = widths[:, 4]
+    BBpond = widths[:, 5]
+    MLpond = widths[:, 6]
+    barrier_marsh = barrier + BBmarsh
+
+    # ------
+    fig, ax1 = plt.subplots()
+    fig.set_size_inches(12, 9)
+
+    ax1.set_xlabel('Year')
+    ax1.set_ylabel('BB Marsh Width [m]', color='red')
+    ax1.plot(BBmarsh, c="red")
+    ax1.tick_params(axis='y', labelcolor='red')
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Dune Height [m]", color='black')
+    ax2.plot(aHd, c="black")
+    ax2.tick_params(axis='y', labelcolor='black')
 
 
+# --------------------------
 plt.show()
 
