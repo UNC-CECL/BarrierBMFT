@@ -4,7 +4,7 @@ BarrierBMFT: Coupled Barrier-Bay-Marsh-Forest Model
 Couples Barrier3D (Reeves et al., 2021) with the PyBMFT-C model
 
 Copyright Ian RB Reeves
-Last updated: 7 February 2022
+Last updated: 25 April 2022
 """
 
 import numpy as np
@@ -17,95 +17,107 @@ SimDur = 400  # [Yr] Duration of each simulation
 
 # Parameter values
 rslr = [3, 6, 9, 12, 15]
-# co = [20, 30, 40, 50, 60]
 co = [40, 50, 60, 70, 80]
-slope = [0.005]
+slope = [0.001]
 
 SimNum = len(rslr) * len(co) * len(slope)
 
-ElSim = 55  # Simulation number for elevation plot
+Sim_plot = 5  # Simulation number for plotting
+Data_Sim_plot = 1  # Data file number for plotting
 
 plot_param_space = True
-plot_elev = False
+plot_elev = True
 plot_minus = False
 plot_dune_width = True
 
 # ==================================================================================================================================================================================
-# Load data
+# Specify data
+
+# ~ File bank ~
 # filename = '/BarrierBMFT/Output/Batch_2022_0207_13_37/'
 # filename = '/Users/reevesi/PycharmProjects/BarrierBMFT/Output/Batch_2022_0408_13_55/'
 # filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0408_19_32/'
-# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0410_00_57/'
+# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0423_15_12/'  # 38
+# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0423_15_19/'  # 44
+# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_28/'  # 49
+# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_30/'  # 51
+# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_31/'  # 52
+# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_32/'  # 53
 
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_05/'  # 4
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_09/'  # 5
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_11/'  # 6
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0410_13_13/'  # 7
+data_files = [
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_30/',  # 51
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_31/',  # 52
+]
 
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_16/'  # 9
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_19/'  # 10
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_21/'  # 11
+file_num = len(data_files)
 
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_26/'  # 12
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_29/'  # 13
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_31/'  # 14
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0411_18_37/'  # 15
+# Initialize data arrays
+BarrierWidth = np.zeros([file_num, len(rslr), len(co)])
+BBMarshWidth = np.zeros([file_num, len(rslr), len(co)])
+BayWidth = np.zeros([file_num, len(rslr), len(co)])
+MLMarshWidth = np.zeros([file_num, len(rslr), len(co)])
+ForestWidth = np.zeros([file_num, len(rslr), len(co)])
+BBPondWidth = np.zeros([file_num, len(rslr), len(co)])
+MLPondWidth = np.zeros([file_num, len(rslr), len(co)])
+ShorelineChange = np.zeros([file_num, len(rslr), len(co)])
 
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0418_16_13/'  # 16
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0418_16_17/'  # 17
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0418_16_20/'  # 18
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0418_16_25/'  # 19
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0418_16_33/'  # 21
+# ==================================================================================================================================================================================
+# Load data
 
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0421_14_57/'  # 26
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0422_00_23/'  # 29
-# filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0422_00_25/'  # 30
-filename = '/Users/ianreeves/Desktop/Data-Results-BarrierBMFT/Batch_2022_0422_00_27/'  # 31
+for n in range(file_num):
+    filename = data_files[n]
 
-BarrierWidth = np.load(filename + 'Widths_Barrier.npy')
-BarrierWidth = np.mean(BarrierWidth[:, :, :, 0], axis=0)
-BarrierWidth = np.rot90(BarrierWidth)
-BarrierWidth = np.flipud(BarrierWidth)
+    nBarrierWidth = np.load(filename + 'Widths_Barrier.npy')
+    nBarrierWidth = np.mean(nBarrierWidth[:, :, :, 0], axis=0)
+    nBarrierWidth = np.rot90(nBarrierWidth)
+    BarrierWidth[n, :, :] = np.flipud(nBarrierWidth)
 
-BBMarshWidth = np.load(filename + 'Widths_BBMarsh.npy')
-BBMarshWidth = np.mean(BBMarshWidth[:, :, :, 0], axis=0)
-BBMarshWidth = np.rot90(BBMarshWidth)
-BBMarshWidth = np.flipud(BBMarshWidth)
+    nBBMarshWidth = np.load(filename + 'Widths_BBMarsh.npy')
+    nBBMarshWidth = np.mean(nBBMarshWidth[:, :, :, 0], axis=0)
+    nBBMarshWidth = np.rot90(nBBMarshWidth)
+    BBMarshWidth[n, :, :] = np.flipud(nBBMarshWidth)
 
-BayWidth = np.load(filename + 'Widths_Bay.npy')
-BayWidth = np.mean(BayWidth[:, :, :, 0], axis=0)
-BayWidthOrig = BayWidth
-BayWidth = np.rot90(BayWidth)
-BayWidth = np.flipud(BayWidth)
+    nBayWidth = np.load(filename + 'Widths_Bay.npy')
+    nBayWidth = np.mean(nBayWidth[:, :, :, 0], axis=0)
+    nBayWidth = np.rot90(nBayWidth)
+    BayWidth[n, :, :] = np.flipud(nBayWidth)
 
-MLMarshWidth = np.load(filename + 'Widths_MLMarsh.npy')
-MLMarshWidth = np.mean(MLMarshWidth[:, :, :, 0], axis=0)
-MLMarshWidth = np.rot90(MLMarshWidth)
-MLMarshWidth = np.flipud(MLMarshWidth)
+    nMLMarshWidth = np.load(filename + 'Widths_MLMarsh.npy')
+    nMLMarshWidth = np.mean(nMLMarshWidth[:, :, :, 0], axis=0)
+    nMLMarshWidth = np.rot90(nMLMarshWidth)
+    MLMarshWidth[n, :, :] = np.flipud(nMLMarshWidth)
 
-ForestWidth = np.load(filename + 'Widths_Forest.npy')
-ForestWidth = np.mean(ForestWidth[:, :, :, 0], axis=0)
-ForestWidthOrig = ForestWidth
-ForestWidth = np.rot90(ForestWidth)
-ForestWidth = np.flipud(ForestWidth)
+    nForestWidth = np.load(filename + 'Widths_Forest.npy')
+    nForestWidth = np.mean(nForestWidth[:, :, :, 0], axis=0)
+    nForestWidth = np.rot90(nForestWidth)
+    ForestWidth[n, :, :] = np.flipud(nForestWidth)
 
-BBPondWidth = np.load(filename + 'Widths_BBMarshPond.npy')
-BBPondWidth = np.mean(BBPondWidth[:, :, :, 0], axis=0)
-BBPondWidth = np.rot90(BBPondWidth)
-BBPondWidth = np.flipud(BBPondWidth)
+    nBBPondWidth = np.load(filename + 'Widths_BBMarshPond.npy')
+    nBBPondWidth = np.mean(nBBPondWidth[:, :, :, 0], axis=0)
+    nBBPondWidth = np.rot90(nBBPondWidth)
+    BBPondWidth[n, :, :] = np.flipud(nBBPondWidth)
 
-MLPondWidth = np.load(filename + 'Widths_MLMarshPond.npy')
-MLPondWidth = np.mean(MLPondWidth[:, :, :, 0], axis=0)
-MLPondWidth = np.rot90(MLPondWidth)
-MLPondWidth = np.flipud(MLPondWidth)
+    nMLPondWidth = np.load(filename + 'Widths_MLMarshPond.npy')
+    nMLPondWidth = np.mean(nMLPondWidth[:, :, :, 0], axis=0)
+    nMLPondWidth = np.rot90(nMLPondWidth)
+    MLPondWidth[n, :, :] = np.flipud(nMLPondWidth)
 
-ShorelineChange = np.load(filename + 'ShorelineChange.npy')
-ShorelineChange = np.mean(ShorelineChange[:, :, :, 0], axis=0)
-ShorelineChange = ShorelineChange * 10  # Convert to m
-ShorelineChange = np.rot90(ShorelineChange)
-ShorelineChange = np.flipud(ShorelineChange)
+    nShorelineChange = np.load(filename + 'ShorelineChange.npy')
+    nShorelineChange = np.mean(nShorelineChange[:, :, :, 0], axis=0)
+    nShorelineChange = nShorelineChange * 10  # Convert to m
+    nShorelineChange = np.rot90(nShorelineChange)
+    ShorelineChange[n, :, :] = np.flipud(nShorelineChange)
 
-SimEl = np.load(filename + 'Sim' + str(ElSim) + '_elevation.npy', allow_pickle=True)
+# Average across data files
+BarrierWidth = np.mean(BarrierWidth, axis=0)
+BBMarshWidth = np.mean(BBMarshWidth, axis=0)
+BayWidth = np.mean(BayWidth, axis=0)
+MLMarshWidth = np.mean(MLMarshWidth, axis=0)
+ForestWidth = np.mean(ForestWidth, axis=0)
+BBPondWidth = np.mean(BBPondWidth, axis=0)
+MLPondWidth = np.mean(MLPondWidth, axis=0)
+ShorelineChange = np.mean(ShorelineChange, axis=0)
+
 
 # ==================================================================================================================================================================================
 # Plot
@@ -113,7 +125,6 @@ SimEl = np.load(filename + 'Sim' + str(ElSim) + '_elevation.npy', allow_pickle=T
 if plot_param_space:
 
     xtic = ['', '3', '6', '9', '12', '15']
-    # ytic = ['', '20', '30', '40', '50', '60']
     ytic = ['', '40', '50', '60', '70', '80']
 
     xlab = 'RSLR [mm/yr]'
@@ -259,10 +270,11 @@ if plot_param_space:
 
 # --------------------------
 if plot_elev:
+    SimEl = np.load(data_files[Data_Sim_plot - 1] + 'Sim' + str(Sim_plot) + '_elevation.npy', allow_pickle=True)
     plt.figure(figsize=(12, 6))
     plt.xlabel("Distance Cross-Shore [m]")
     plt.ylabel("Elevation [m]")
-    plt.title("Sim" + str(ElSim))
+    plt.title("Sim" + str(Sim_plot))
     for t in range(0, len(SimEl), 50):
         elev = SimEl[t]
         plt.plot(elev)
@@ -301,8 +313,8 @@ if plot_minus:
 # --------------------------
 if plot_dune_width:
 
-    SimWidths = np.load(filename + 'Sim' + str(ElSim) + '_widthsTS.npy', allow_pickle=True)
-    SimStats = np.load(filename + 'Sim' + str(ElSim) + '_statsTS.npy', allow_pickle=True)
+    SimWidths = np.load(data_files[Data_Sim_plot - 1] + 'Sim' + str(Sim_plot) + '_widthsTS.npy', allow_pickle=True)
+    SimStats = np.load(data_files[Data_Sim_plot - 1] + 'Sim' + str(Sim_plot) + '_statsTS.npy', allow_pickle=True)
 
     aHd = SimStats[:, 4]
 
