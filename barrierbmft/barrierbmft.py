@@ -545,10 +545,10 @@ class BarrierBMFT:
             barrier_width = len(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_f:]) - off
         else:
             barrier_width = len(self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_f:])
-        BB_marsh_width = (self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m: self._bmftc_BB.x_f] > self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] - self._bmftc_BB.amp).sum()
-        ML_marsh_width = (self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step, self._bmftc_ML.x_m: self._bmftc_ML.x_f] > self._bmftc_ML.msl[self._bmftc_ML.startyear + time_step] - self._bmftc_ML.amp).sum()
-        BB_marsh_pond_width = (self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m: self._bmftc_BB.x_f] < self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] - self._bmftc_BB.amp).sum()
-        ML_marsh_pond_width = (self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step, self._bmftc_ML.x_m: self._bmftc_ML.x_f] < self._bmftc_ML.msl[self._bmftc_ML.startyear + time_step] - self._bmftc_ML.amp).sum()
+        BB_marsh_width = (self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m: self._bmftc_BB.x_f] > self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] + self._bmftc_BB.amp - self._bmftc_BB.Dmax).sum()
+        ML_marsh_width = (self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step, self._bmftc_ML.x_m: self._bmftc_ML.x_f] > self._bmftc_ML.msl[self._bmftc_ML.startyear + time_step] + self._bmftc_ML.amp - self._bmftc_ML.Dmax).sum()
+        BB_marsh_pond_width = (self._bmftc_BB.elevation[self._bmftc_BB.startyear + time_step, self._bmftc_BB.x_m: self._bmftc_BB.x_f] < self._bmftc_BB.msl[self._bmftc_BB.startyear + time_step] + self._bmftc_BB.amp - self._bmftc_BB.Dmax).sum()
+        ML_marsh_pond_width = (self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step, self._bmftc_ML.x_m: self._bmftc_ML.x_f] < self._bmftc_ML.msl[self._bmftc_ML.startyear + time_step] + self._bmftc_ML.amp - self._bmftc_ML.Dmax).sum()
         forest_width = len(self._bmftc_ML.elevation[self._bmftc_ML.startyear + time_step, self._bmftc_ML.x_f:])
         self._LandscapeTypeWidth_TS[time_step, :] = [barrier_width, BB_marsh_width, self._bmftc_BB.bfo, ML_marsh_width, forest_width, BB_marsh_pond_width, ML_marsh_pond_width]
 
