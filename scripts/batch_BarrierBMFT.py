@@ -22,13 +22,13 @@ from barrier3d.tools.input_files import yearly_storms
 # ==================================================================================================================================================================================
 # Define batch parameters
 
-Num = 10  # Number of runs at each combinations of parameter values
+Num = 4  # Number of runs at each combinations of parameter values
 SimDur = 400  # [Yr] Duration of each simulation
 
 # Parameter values
 rslr = [3, 6, 9, 12, 15]
 co = [40, 50, 60, 70, 80]
-slope = [0.01]
+slope = [0.001]
 
 add = 0  # Pad input labels, optional
 
@@ -175,18 +175,17 @@ def RunBatch(n):
 
                 # Save stats
                 stats = np.zeros([SimDur, 8])
-                stats[:len(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear:]), 0] = barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear:]  # BB marsh edge
-                stats[:len(barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear:]), 1] = barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear:]  # BB "forest" edge
-                stats[:len(barrierbmft.bmftc_ML.Marsh_edge[barrierbmft.bmftc_ML.startyear:]), 2] = barrierbmft.bmftc_ML.Marsh_edge[barrierbmft.bmftc_ML.startyear:]  # ML marsh edge
-                stats[:len(barrierbmft.bmftc_ML.Forest_edge[barrierbmft.bmftc_ML.startyear:]), 3] = barrierbmft.bmftc_ML.Forest_edge[barrierbmft.bmftc_ML.startyear:]  # ML forest edge
+                stats[:len(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear:]) + 1, 0] = barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear + 1:]  # BB marsh edge
+                stats[:len(barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear:]) + 1, 1] = barrierbmft.bmftc_BB.Forest_edge[barrierbmft.bmftc_BB.startyear + 1:]  # BB "forest" edge
+                stats[:len(barrierbmft.bmftc_ML.Marsh_edge[barrierbmft.bmftc_ML.startyear:]) + 1, 2] = barrierbmft.bmftc_ML.Marsh_edge[barrierbmft.bmftc_ML.startyear + 1:]  # ML marsh edge
+                stats[:len(barrierbmft.bmftc_ML.Forest_edge[barrierbmft.bmftc_ML.startyear:]) + 1, 3] = barrierbmft.bmftc_ML.Forest_edge[barrierbmft.bmftc_ML.startyear + 1:]  # ML forest edge
                 aHd = [a * 10 for a in barrierbmft.barrier3d.model.Hd_AverageTS]  # [m] Average dune height
                 stats[:len(aHd[1:-1]), 4] = aHd[1:-1]
-                stats[:len(barrierbmft.bmftc_ML.Bay_depth[barrierbmft.bmftc_ML.startyear:]), 5] = barrierbmft.bmftc_ML.Bay_depth[barrierbmft.bmftc_ML.startyear:]  # Bay depth
-                stats[:len(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear:]), 6] = barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear:]  # Bay fetch
+                stats[:len(barrierbmft.bmftc_ML.Bay_depth[barrierbmft.bmftc_ML.startyear:]) + 1, 5] = barrierbmft.bmftc_ML.Bay_depth[barrierbmft.bmftc_ML.startyear + 1:]  # Bay depth
+                stats[:len(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear:]) + 1, 6] = barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear + 1:]  # Bay fetch
                 x_s = [(x - barrierbmft.barrier3d.model.x_s_TS[0]) * 10 for x in barrierbmft.barrier3d.model.x_s_TS]
-                if len(x_s) > SimDur:
-                    x_s = x_s[(len(x_s) - SimDur):]
-                stats[:len(x_s), 7] = x_s  # Shoreline position
+                x_s = x_s[1: -1]
+                stats[:, 7] = x_s  # Shoreline position
                 np.save(directory + '/Sim' + str(Sim) + '_statsTS.npy', stats)
 
     return WidthData
@@ -196,7 +195,7 @@ def RunBatch(n):
 # Make new directory and data arrays
 
 name = datetime.today().strftime('%Y_%m%d_%H_%M')
-directory = '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Output/Batch_' + name
+directory = 'Output/Batch_' + name
 print('Batch_' + name)
 os.makedirs(directory)
 
