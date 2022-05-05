@@ -185,7 +185,7 @@ def RunBatch(n):
                 stats[:len(barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear:]) + 1, 6] = barrierbmft.bmftc_ML.fetch[barrierbmft.bmftc_ML.startyear + 1:]  # Bay fetch
                 x_s = [(x - barrierbmft.barrier3d.model.x_s_TS[0]) * 10 for x in barrierbmft.barrier3d.model.x_s_TS]
                 x_s = x_s[1: -1]
-                stats[:len(x_s) + 1, 7] = x_s  # Shoreline position
+                stats[:len(x_s), 7] = x_s  # Shoreline position
                 np.save(directory + '/Sim' + str(Sim) + '_statsTS.npy', stats)
 
     return WidthData
