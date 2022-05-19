@@ -9,6 +9,7 @@ Last updated: 25 April 2022
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 
 # ==================================================================================================================================================================================
 # Define batch parameters
@@ -18,35 +19,103 @@ SimDur = 400  # [Yr] Duration of each simulation
 # Parameter values
 rslr = [3, 6, 9, 12, 15]
 co = [40, 50, 60, 70, 80]
-slope = [0.001]
+slope = [0.005]
 
 SimNum = len(rslr) * len(co) * len(slope)
 
-Sim_plot = 5  # Simulation number for plotting
-Data_Sim_plot = 1  # Data file number for plotting
+Sim_plot = 2  # Simulation number for plotting
+Data_Sim_plot = 2  # Data file number for plotting
 
 plot_param_space = True
-plot_elev = True
+plot_param_space_pond = False
+plot_elev = False
 plot_minus = False
-plot_dune_width = True
+plot_dune_width = False
+
+title = 'Slow Dune Growth, Moderate Slope'
 
 # ==================================================================================================================================================================================
 # Specify data
 
-# ~ File bank ~
-# filename = '/BarrierBMFT/Output/Batch_2022_0207_13_37/'
-# filename = '/Users/reevesi/PycharmProjects/BarrierBMFT/Output/Batch_2022_0408_13_55/'
-# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0408_19_32/'
-# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0423_15_12/'  # 38
-# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0423_15_19/'  # 44
-# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_28/'  # 49
-# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_30/'  # 51
-# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_31/'  # 52
-# filename = '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_32/'  # 53
-
 data_files = [
-    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_30/',  # 51
-    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0425_00_31/',  # 52
+    # Group 4: Fast, shallow
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_00_28/',  # 49
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_34/',  # 71
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_00_33/',  # 77
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_17/',  # 84
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_23_31/',  # 102
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0505_18_51/',  # 114
+
+    # Group 5: Fast, moderate
+    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_00_30/',  # 51
+    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_00_31/',  # 52
+    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_16_29/',  # 57
+    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_35/',  # 72
+    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_36/',  # 73
+    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_00_36/',  # 79
+    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_00_37/',  # 80
+    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_20/',  # 86
+    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0511_00_09/',  # 116
+    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_01_11/',  # 119
+    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_01_14/',  # 120
+
+    # Group 6: Fast, steep
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_00_32/',  # 53
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_16_30/',  # 58
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_16_31/',  # 59
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_38/',  # 74
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_39/',  # 75
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_00_39/',  # 82
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_22/',  # 87
+
+    # Group 7: Slow, shallow
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0426_14_21/',  # 61
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_00_08/',  # 69
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_37/',  # 70
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_18_27/',  # 92
+
+    # Group 8: Slow, moderate
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0426_14_22/',  # 62
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0426_14_23/',  # 63
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0426_14_01/',  # 66
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_16_14/',  # 100
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0511_18_35/',  # 118
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_01_16/',  # 121
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_01_17/',  # 122
+
+    # Group 9: Slow, steep
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0426_14_24/',  # 64
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0426_14_25/',  # 65
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0428_18_31/',  # 76
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_16_37/',  # 101
+
+    # Group 10: Fast, moderate, Rinr=1
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_28/',  # 89
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_11_36/',  # 94
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_12_09/',  # 98
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_13_52/',  # 99
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0502_17_28/',  # 110
+
+    # Group 11: Fast, moderate, Rinr=2
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_29/',  # 90
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_30/',  # 91
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_23_34/',  # 104
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_23_35/',  # 105
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_23_36/',  # 106
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0505_00_20/',  # 112
+
+    # Group 12: Moderate, moderate
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_11_42/',  # 95
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_11_43/',  # 96
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_11_46/',  # 97
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_23_38/',  # 107
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_23_39/',  # 108
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0505_00_22/',  # 113
+
+    # Group 13: Fast, moderate, Cbb=0.5/0.65
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_23_40/',  # 123
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0516_12_30/',  # 124
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0518_13_05/',  # 125
 ]
 
 file_num = len(data_files)
@@ -127,8 +196,8 @@ if plot_param_space:
     xtic = ['', '3', '6', '9', '12', '15']
     ytic = ['', '40', '50', '60', '70', '80']
 
-    xlab = 'RSLR [mm/yr]'
-    ylab = 'Back-Barrier SSC [mg/L]'
+    xlab = 'RSLR (mm/yr)'
+    ylab = 'External SSC (mg/L)'
 
     sumwidth = BarrierWidth + BBMarshWidth + BayWidth + MLMarshWidth + ForestWidth
     all_widths = np.concatenate((BarrierWidth, BBMarshWidth, BayWidth, MLMarshWidth, ForestWidth))
@@ -136,11 +205,17 @@ if plot_param_space:
     maximum = max(abs(int(np.min(all_widths))), abs(int(np.max(all_widths))))
     vmax = maximum
     vmin = -maximum
+    # vmax = 1300
+    # vmin = -1300
+    print('min:', vmin, ', max:', vmax)
 
+    # colors = ['maroon', 'red', 'white', 'blue', 'midnightblue']
+    # nodes = [0.0, 0.4, 0.5, 0.6, 1.0]
+    # cmap = LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, colors)))
 
-    cmap = 'RdBu'
-    Fig = plt.figure(figsize=(16, 3.4))
-    plt.rcParams.update({'font.size': 10, 'font.family': 'Arial'})
+    cmap = 'seismic_r'
+    Fig = plt.figure(figsize=(16, 3.55))
+    plt.rcParams.update({'font.size': 12.5, 'font.family': 'Arial'})
 
     ax = Fig.add_subplot(161)
     cax = ax.matshow(BarrierWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
@@ -188,25 +263,29 @@ if plot_param_space:
     ax.set_xticklabels(xtic)
     ax.set_yticklabels(ytic)
     plt.title('Forest')
-    plt.tight_layout()
 
     ax = Fig.add_subplot(166)
     # cax = ax.matshow(sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
     cax = ax.matshow(ShorelineChange, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
     ax.xaxis.set_ticks_position('bottom')
     # cbar = Fig.colorbar(cax)
-    # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+    # cbar.set_label('Change in Width (m)', rotation=270, labelpad=20)
     ax.set_xticklabels(xtic)
     ax.set_yticklabels(ytic)
     # plt.title('Total Landscape Width')
     plt.title('Ocean Shoreline Change')
+
+    Fig.suptitle(title, fontsize=18)
     plt.tight_layout()
 
-    # --------------------------
+    # plt.savefig("/Users/ianreeves/Desktop/Figure2_Cbar.svg")
+    # plt.savefig("/Users/ianreeves/Desktop/Figure2_Cbar.png")
+
+# --------------------------
+if plot_param_space_pond:
     # Marsh + Pond
-    cmap = 'RdBu'
-    Fig = plt.figure(figsize=(16, 3.4))
-    plt.rcParams.update({'font.size': 10, 'font.family': 'Arial'})
+    Fig = plt.figure(figsize=(16, 3.55))
+    # plt.rcParams.update({'font.size': 10, 'font.family': 'Arial'})
 
     ax = Fig.add_subplot(161)
     cax = ax.matshow(BarrierWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
@@ -254,7 +333,6 @@ if plot_param_space:
     ax.set_xticklabels(xtic)
     ax.set_yticklabels(ytic)
     plt.title('Forest')
-    plt.tight_layout()
 
     ax = Fig.add_subplot(166)
     # cax = ax.matshow(sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
@@ -266,6 +344,8 @@ if plot_param_space:
     ax.set_yticklabels(ytic)
     # plt.title('Total Landscape Width')
     plt.title('Ocean Shoreline Change')
+
+    Fig.suptitle(title, fontsize=18)
     plt.tight_layout()
 
 # --------------------------
@@ -283,12 +363,25 @@ if plot_elev:
 if plot_minus:
 
     # Subtract forest width change from ML marsh change
-    Fig = plt.figure(figsize=(8, 8))
-    ax = Fig.add_subplot(111)
-    plt.xlabel("RSLR [mm/yr]")
-    plt.ylabel("Back-Barrier SSC [mg/L]")
-    plt.title("Mainland Marsh (Minus Forest Change)")
-    cax = ax.matshow(MLMarshWidth + ForestWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    Fig = plt.figure(figsize=(10, 5))
+    plt.rcParams.update({'font.size': 14, 'font.family': 'Arial'})
+    ax = Fig.add_subplot(122)
+    plt.xlabel("RSLR (mm/yr)")
+    plt.ylabel("External SSC (mg/L)")
+    plt.title("Bay Width Change via Mainland Edge")
+    cax = ax.matshow((MLMarshWidth + MLPondWidth + ForestWidth) * -1, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    ax.xaxis.set_ticks_position('bottom')
+    # cbar = Fig.colorbar(cax)
+    # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
+    ax.set_xticklabels(xtic)
+    ax.set_yticklabels(ytic)
+
+    # Bay Width Change From Back-Barrier Marsh
+    ax = Fig.add_subplot(121)
+    plt.xlabel("RSLR (mm/yr)")
+    plt.ylabel("External SSC (mg/L)")
+    plt.title("Bay Width Change via Back-Barrier Edge")
+    cax = ax.matshow((BayWidth + MLMarshWidth + MLPondWidth + ForestWidth), origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
     ax.xaxis.set_ticks_position('bottom')
     # cbar = Fig.colorbar(cax)
     # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
@@ -296,19 +389,8 @@ if plot_minus:
     ax.set_yticklabels(ytic)
     plt.tight_layout()
 
-    # Subtract total landscape width change from bay change
-    Fig = plt.figure(figsize=(8, 8))
-    ax = Fig.add_subplot(111)
-    plt.xlabel("RSLR [mm/yr]")
-    plt.ylabel("Back-Barrier SSC [mg/L]")
-    plt.title("Bay (Minus Total Landscape Change)")
-    cax = ax.matshow(BayWidth + sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-    ax.xaxis.set_ticks_position('bottom')
-    # cbar = Fig.colorbar(cax)
-    # cbar.set_label('Change in Width [m]', rotation=270, labelpad=20)
-    ax.set_xticklabels(xtic)
-    ax.set_yticklabels(ytic)
-    plt.tight_layout()
+    # plt.savefig("/Users/ianreeves/Desktop/Figure4.svg")
+    # plt.savefig("/Users/ianreeves/Desktop/Figure4.png")
 
 # --------------------------
 if plot_dune_width:
@@ -329,7 +411,6 @@ if plot_dune_width:
     MLpond = widths[:, 6]
     barrier_marsh = barrier + BBmarsh
 
-    # ------
     fig, ax1 = plt.subplots()
     fig.set_size_inches(12, 9)
 
