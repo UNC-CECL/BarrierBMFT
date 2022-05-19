@@ -20,13 +20,13 @@ from barrier3d.tools import plot as B3Dfunc
 
 # ==================================================================================================================================================================================
 # Set Starting Parameters
-TS_max = 50
-TS_change = 25  # Time step at which state change occurs
+TS_max = 400
+TS_change = 100  # Time step at which state change occurs
 
-# new_rmin = 0.05
-# new_rmax = 0.55
-new_rmin = 0.65
-new_rmax = 1.15
+new_rmin = 0.05
+new_rmax = 0.55
+# new_rmin = 0.65
+# new_rmax = 1.15
 
 # ==================================================================================================================================================================================
 # Create an instance of the BMI class
@@ -56,9 +56,9 @@ for time_step in range(int(barrierbmft.bmftc.dur)):
 
         yr = barrierbmft.bmftc_ML.startyear + time_step
 
-        # # Dunes knocked down and/or growth rates reduced
-        # barrierbmft.barrier3d.model.DuneDomain[time_step, :, :] = barrierbmft.barrier3d.model.DuneDomain[time_step, :, :] * 0.1
-        # barrierbmft.barrier3d.model.growthparam = new_rmin + (new_rmax - new_rmin) * np.random.rand(1, barrierbmft.barrier3d.model.BarrierLength)
+        # Dunes knocked down and/or growth rates reduced
+        barrierbmft.barrier3d.model.DuneDomain[time_step, :, :] = barrierbmft.barrier3d.model.DuneDomain[time_step, :, :] * 0.1
+        barrierbmft.barrier3d.model.growthparam = new_rmin + (new_rmax - new_rmin) * np.random.rand(1, barrierbmft.barrier3d.model.BarrierLength)
 
         # # Dunes built up and/or growth rates increased
         # Hd_max = barrierbmft.barrier3d.model.Dmaxel - barrierbmft.barrier3d.model.BermEl - 0.02
@@ -75,16 +75,16 @@ for time_step in range(int(barrierbmft.bmftc.dur)):
         # barrierbmft.bmftc_ML._x_m = barrierbmft.bmftc_ML.x_m + (x_f_ML - x_m_ML)
         # barrierbmft.bmftc_ML._bfo = barrierbmft.bmftc_ML.bfo + (x_f_ML - x_m_ML)
 
-        # Mainland marsh gain
-        gain = 1000
-        db = barrierbmft.bmftc_ML.db
-        x_m_ML = barrierbmft.bmftc_ML.x_m
-        x_b_ML = barrierbmft.bmftc_ML.x_b
-        barrierbmft.bmftc_ML.elevation[yr, x_m_ML - gain - 1: x_m_ML - 1] += db
-        barrierbmft.bmftc_ML.organic_dep_autoch[yr, x_m_ML - gain - 1: x_m_ML - 1] += db * barrierbmft.bmftc_ML.rhos * 1000 * barrierbmft.bmftc_ML.OCb[yr]
-        barrierbmft.bmftc_ML.mineral_dep[yr, x_m_ML - gain - 1: x_m_ML - 1] += db * barrierbmft.bmftc_ML.rhos * 1000 * (1 - barrierbmft.bmftc_ML.OCb[yr])
-        barrierbmft.bmftc_ML._x_m = barrierbmft.bmftc_ML.x_m - gain
-        barrierbmft.bmftc_ML._bfo = barrierbmft.bmftc_ML.bfo - gain
+        # # Mainland marsh gain
+        # gain = 1000
+        # db = barrierbmft.bmftc_ML.db
+        # x_m_ML = barrierbmft.bmftc_ML.x_m
+        # x_b_ML = barrierbmft.bmftc_ML.x_b
+        # barrierbmft.bmftc_ML.elevation[yr, x_m_ML - gain - 1: x_m_ML - 1] += db
+        # barrierbmft.bmftc_ML.organic_dep_autoch[yr, x_m_ML - gain - 1: x_m_ML - 1] += db * barrierbmft.bmftc_ML.rhos * 1000 * barrierbmft.bmftc_ML.OCb[yr]
+        # barrierbmft.bmftc_ML.mineral_dep[yr, x_m_ML - gain - 1: x_m_ML - 1] += db * barrierbmft.bmftc_ML.rhos * 1000 * (1 - barrierbmft.bmftc_ML.OCb[yr])
+        # barrierbmft.bmftc_ML._x_m = barrierbmft.bmftc_ML.x_m - gain
+        # barrierbmft.bmftc_ML._bfo = barrierbmft.bmftc_ML.bfo - gain
 
     # Run time step
     barrierbmft.update(time_step)
