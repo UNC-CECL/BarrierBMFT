@@ -65,9 +65,6 @@ def init_equal(bmftc_ML, bmftc_BB, datadir, parameter_file, storm_file):
     if bmftc_ML.wind != bmftc_BB.wind:
         print(" - wind_speed parameters not equal")
         return
-    if bmftc_ML.seagrass_on != bmftc_BB.seagrass_on:
-        print(" - seagrass_on parameters not equal")
-        return
     if bmftc_ML.tcr != bmftc_BB.tcr:
         print(" - critical_shear_mudflat parameters not equal")
         return
@@ -88,7 +85,7 @@ class BarrierBMFT:
     def __init__(
             self,
             name="BarrierBMFT",
-            time_step_count=500,
+            time_step_count=50,
             relative_sea_level_rise=12,
             reference_concentration=60,
             slope_upland=0.005,
@@ -112,7 +109,6 @@ class BarrierBMFT:
             forest_width_initial_fixed=False,
             forest_width_initial=5000,
             wind_speed=6,
-            seagrass_on=False,
             forest_on=True,
             filename_equilbaydepth="Input/PyBMFT-C/Equilibrium Bay Depth.mat",  # "Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",
             filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat",  # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
@@ -130,7 +126,6 @@ class BarrierBMFT:
             forest_width_initial_fixed=False,
             forest_width_initial=5000,  # 5000 accomodates 250 yrs at R=15 and S=0.001
             wind_speed=6,
-            seagrass_on=False,
             forest_on=False,
             filename_equilbaydepth="Input/PyBMFT-C/Equilibrium Bay Depth.mat",  # "Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",
             filename_marshspinup="Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50_width500.mat",  # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
