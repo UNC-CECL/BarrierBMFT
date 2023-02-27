@@ -23,8 +23,8 @@ slope = [0.005]
 
 SimNum = len(rslr) * len(co) * len(slope)
 
-Sim_plot = 2  # Simulation number for plotting
-Data_Sim_plot = 2  # Data file number for plotting
+Sim_plot = 5  # Simulation number for plotting
+Data_Sim_plot = 1  # Data file number for plotting
 
 plot_param_space = True
 plot_param_space_pond = False
@@ -32,41 +32,52 @@ plot_elev = False
 plot_minus = False
 plot_dune_width = False
 
-title = 'Slow Dune Growth, Moderate Slope'
+title = 'New Coastal Zone Width with ponds'
 
 # ==================================================================================================================================================================================
 # Specify data
 
 data_files = [
     # Group 4: Fast, shallow
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_00_28/',  # 49
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_34/',  # 71
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_00_33/',  # 77
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_17/',  # 84
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_23_31/',  # 102
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0505_18_51/',  # 114
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0425_00_28/',  # 49
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0427_12_34/',  # 71
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0429_00_33/',  # 77
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0429_12_17/',  # 84
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0501_23_31/',  # 102
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0505_18_51/',  # 114
 
     # Group 5: Fast, moderate
-    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_00_30/',  # 51
-    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_00_31/',  # 52
-    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_16_29/',  # 57
-    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_35/',  # 72
-    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_36/',  # 73
-    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_00_36/',  # 79
-    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_00_37/',  # 80
-    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_20/',  # 86
-    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0511_00_09/',  # 116
-    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_01_11/',  # 119
-    '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_01_14/',  # 120
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_00_30/',  # 51
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_00_31/',  # 52
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_16_29/',  # 57
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_35/',  # 72
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_36/',  # 73
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_00_36/',  # 79
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_00_37/',  # 80
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_20/',  # 86
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0511_00_09/',  # 116
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_01_11/',  # 119
+    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_01_14/',  # 120
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0425_00_30/',  # 51
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0425_00_31/',  # 52
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0425_16_29/',  # 57
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0427_12_35/',  # 72
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0427_12_36/',  # 73
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0429_00_36/',  # 79
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0429_00_37/',  # 80
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0429_12_20/',  # 86
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0511_00_09/',  # 116
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0512_01_11/',  # 119
+    '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0512_01_14/',  # 120
 
     # Group 6: Fast, steep
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_00_32/',  # 53
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_16_30/',  # 58
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0425_16_31/',  # 59
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_38/',  # 74
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0427_12_39/',  # 75
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_00_39/',  # 82
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_22/',  # 87
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0425_00_32/',  # 53
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0425_16_30/',  # 58
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0425_16_31/',  # 59
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0427_12_38/',  # 74
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0427_12_39/',  # 75
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0429_00_39/',  # 82
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0429_12_22/',  # 87
 
     # Group 7: Slow, shallow
     # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0426_14_21/',  # 61
@@ -75,13 +86,13 @@ data_files = [
     # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_18_27/',  # 92
 
     # Group 8: Slow, moderate
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0426_14_22/',  # 62
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0426_14_23/',  # 63
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0426_14_01/',  # 66
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_16_14/',  # 100
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0511_18_35/',  # 118
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_01_16/',  # 121
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_01_17/',  # 122
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0426_14_22/',  # 62
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0426_14_23/',  # 63
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0426_14_01/',  # 66
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0430_16_14/',  # 100
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0511_18_35/',  # 118
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0512_01_16/',  # 121
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0512_01_17/',  # 122
 
     # Group 9: Slow, steep
     # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0426_14_24/',  # 64
@@ -90,19 +101,19 @@ data_files = [
     # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_16_37/',  # 101
 
     # Group 10: Fast, moderate, Rinr=1
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_28/',  # 89
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_11_36/',  # 94
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_12_09/',  # 98
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_13_52/',  # 99
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0502_17_28/',  # 110
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0429_12_28/',  # 89
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0430_11_36/',  # 94
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0430_12_09/',  # 98
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0430_13_52/',  # 99
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0502_17_28/',  # 110
 
     # Group 11: Fast, moderate, Rinr=2
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_29/',  # 90
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0429_12_30/',  # 91
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_23_34/',  # 104
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_23_35/',  # 105
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0501_23_36/',  # 106
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0505_00_20/',  # 112
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0429_12_29/',  # 90
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0429_12_30/',  # 91
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0501_23_34/',  # 104
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0501_23_35/',  # 105
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0501_23_36/',  # 106
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0505_00_20/',  # 112
 
     # Group 12: Moderate, moderate
     # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0430_11_42/',  # 95
@@ -113,9 +124,29 @@ data_files = [
     # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0505_00_22/',  # 113
 
     # Group 13: Fast, moderate, Cbb=0.5/0.65
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0512_23_40/',  # 123
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0516_12_30/',  # 124
-    # '/Volumes/LACIE SHARE/Reeves/BarrierBMFT/Data-Results/Batch_2022_0518_13_05/',  # 125
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0512_23_40/',  # 123
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0516_12_30/',  # 124
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/BarrierBMFT_Results_Copy/Batch_2022_0518_13_05/',  # 125
+
+    # Group 14: Fast, moderate, Initial BB marsh width = 100 m
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0818_19_55/',  # 126
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0818_19_58/',  # 127
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0818_19_59/',  # 128
+
+    # Group 15: Fast, moderate, Initial BB & ML marsh width = 100 m
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0824_13_09/',  # 129 drowning
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0824_13_11/',  # 130 drowning
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0825_01_06/',  # 131 drowning
+
+    # Group 16: Fast, moderate, Initial BB & ML marsh width = 1000 m
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0825_01_10/',  # 132
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0825_01_12/',  # 133
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0825_01_13/',  # 134
+
+    # Group 17: Fast, moderate, Initial BB & ML marsh width = 250 m
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0825_18_17/',  # 135
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0825_18_19/',  # 136
+    # '/Users/reevesi/DesktopBackup/BarrierBMFT/Data/Batch_2022_0825_18_20/',  # 137
 ]
 
 file_num = len(data_files)
@@ -129,6 +160,7 @@ ForestWidth = np.zeros([file_num, len(rslr), len(co)])
 BBPondWidth = np.zeros([file_num, len(rslr), len(co)])
 MLPondWidth = np.zeros([file_num, len(rslr), len(co)])
 ShorelineChange = np.zeros([file_num, len(rslr), len(co)])
+CoastalZoneWidth = np.zeros([file_num, len(rslr), len(co)])
 
 # ==================================================================================================================================================================================
 # Load data
@@ -177,6 +209,8 @@ for n in range(file_num):
     nShorelineChange = np.rot90(nShorelineChange)
     ShorelineChange[n, :, :] = np.flipud(nShorelineChange)
 
+    CoastalZoneWidth = BarrierWidth + BBMarshWidth + BBPondWidth + BayWidth + MLMarshWidth + MLPondWidth
+
 # Average across data files
 BarrierWidth = np.mean(BarrierWidth, axis=0)
 BBMarshWidth = np.mean(BBMarshWidth, axis=0)
@@ -186,6 +220,7 @@ ForestWidth = np.mean(ForestWidth, axis=0)
 BBPondWidth = np.mean(BBPondWidth, axis=0)
 MLPondWidth = np.mean(MLPondWidth, axis=0)
 ShorelineChange = np.mean(ShorelineChange, axis=0)
+CoastalZoneWidth = np.mean(CoastalZoneWidth, axis=0)
 
 
 # ==================================================================================================================================================================================
@@ -203,10 +238,10 @@ if plot_param_space:
     all_widths = np.concatenate((BarrierWidth, BBMarshWidth, BayWidth, MLMarshWidth, ForestWidth))
     # all_widths = np.concatenate((BarrierWidth, BBMarshWidth, BayWidth, MLMarshWidth, ForestWidth, ShorelineChange))
     maximum = max(abs(int(np.min(all_widths))), abs(int(np.max(all_widths))))
-    vmax = maximum
-    vmin = -maximum
-    # vmax = 1300
-    # vmin = -1300
+    # vmax = maximum
+    # vmin = -maximum
+    vmax = 1300
+    vmin = -1300
     print('min:', vmin, ', max:', vmax)
 
     # colors = ['maroon', 'red', 'white', 'blue', 'midnightblue']
@@ -265,20 +300,19 @@ if plot_param_space:
     plt.title('Forest')
 
     ax = Fig.add_subplot(166)
-    # cax = ax.matshow(sumwidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-    cax = ax.matshow(ShorelineChange, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    cax = ax.matshow(CoastalZoneWidth, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+    # cax = ax.matshow(ShorelineChange, origin='lower', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
     ax.xaxis.set_ticks_position('bottom')
     # cbar = Fig.colorbar(cax)
     # cbar.set_label('Change in Width (m)', rotation=270, labelpad=20)
     ax.set_xticklabels(xtic)
     ax.set_yticklabels(ytic)
-    # plt.title('Total Landscape Width')
-    plt.title('Ocean Shoreline Change')
+    plt.title('Coastal Zone')
+    # plt.title('Ocean Shoreline Change')
 
     Fig.suptitle(title, fontsize=18)
     plt.tight_layout()
 
-    # plt.savefig("/Users/ianreeves/Desktop/Figure2_Cbar.svg")
     # plt.savefig("/Users/ianreeves/Desktop/Figure2_Cbar.png")
 
 # --------------------------

@@ -4,8 +4,8 @@ BermEl: 1.9
 BurialLimit: 0.75
 C1: 8.8
 C2: 4.6
-Cbb_i: 0.95
-Cbb_r: 0.9
+Cbb_i: 0.85
+Cbb_r: 0.7
 Cx: 10.0
 DShoreface: 10.0
 Dmaxel: 3.4
@@ -32,8 +32,8 @@ Qshrub_max: 0.15
 RSLR_Constant: true
 RSLR_const: 1
 Rat: 0.0
-Rin_i: 0.1
-Rin_r: 1
+Rin_i: 0.125
+Rin_r: 2
 SalineLimit: 5
 SeededRNG: true
 Seedmax: 1000.0
