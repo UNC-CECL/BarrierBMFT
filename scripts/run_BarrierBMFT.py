@@ -19,7 +19,10 @@ from barrier3d.tools import plot as B3Dfunc
 
 # ==================================================================================================================================================================================
 # Create an instance of the BMI class
-barrierbmft = BarrierBMFT()
+barrierbmft = BarrierBMFT(time_step_count=25,
+                          relative_sea_level_rise=12,
+                          reference_concentration=60,
+                          )
 print(barrierbmft.name)
 
 # ==================================================================================================================================================================================
@@ -177,16 +180,17 @@ plt.ylabel("Qsf (m^3/m)")
 plt.xlabel("Time [yr]")
 
 # ===========
-# BB_transect = np.flip(barrierbmft.bmftc_BB.elevation[barrierbmft.bmftc_BB.dur, int(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.dur]):])
-# if barrierbmft.x_b_TS_ML[barrierbmft.bmftc_ML.dur] < 0:
-#     ML_transect = np.append(np.ones([abs(int(barrierbmft.x_b_TS_ML[barrierbmft.bmftc_ML.dur]))]) * barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.dur, 1], barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.dur, :])
-# elif barrierbmft.x_b_TS_ML[barrierbmft.bmftc_ML.dur] > 0:
-#     ML_transect = barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.dur, int(barrierbmft.x_b_TS_ML[barrierbmft.bmftc_ML.dur]):]
-# whole_transect = np.append(BB_transect, ML_transect)
-# plt.figure()
-# plt.plot(whole_transect)
-# plt.xlabel("Distance")
-# plt.ylabel("Elevation [m MSL]")
+t = barrierbmft.bmftc_BB.dur - 1
+BB_transect = np.flip(barrierbmft.bmftc_BB.elevation[barrierbmft.bmftc_BB.startyear + t - 1, int(barrierbmft.bmftc_BB.Marsh_edge[barrierbmft.bmftc_BB.startyear + t]):])
+if barrierbmft.x_b_TS_ML[t] < 0:
+    ML_transect = np.append(np.ones([abs(int(barrierbmft.x_b_TS_ML[t]))]) * barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.startyear + t - 1, 1], barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.startyear + t - 1, :])
+elif barrierbmft.x_b_TS_ML[t] > 0:
+    ML_transect = barrierbmft.bmftc_ML.elevation[barrierbmft.bmftc_ML.startyear + t - 1, int(barrierbmft.x_b_TS_ML[t]):]
+whole_transect = np.append(BB_transect, ML_transect)
+plt.figure()
+plt.plot(whole_transect)
+plt.xlabel("Distance")
+plt.ylabel("Elevation [m MSL]")
 
 # ===========
 # plt.figure()
