@@ -83,7 +83,11 @@ Next, initialize an instance of the *BarrierBMFT* class. Here, you can set certa
 rate (mm/yr) or the external suspended sediment supply (i.e., reference concentration; mg/L):
 
     # Create an instance of the class
-    barrierbmft = BarrierBMFT(relative_sea_level_rise=12, reference_concentration=60)
+    barrierbmft = BarrierBMFT(
+                            time_step_count=20, 
+                            relative_sea_level_rise=12, 
+                            reference_concentration=60,
+    )
     print(barrierbmft.name)
 
 Next, run the simulation by progressing through time:
@@ -170,11 +174,13 @@ Or, plot the change in extent over time for each ecosystem:
     plt.ylabel("Forest [m]")
     plt.tight_layout()
 
+    plt.show()
+
 ## Further Reading
 
 #### BarrierBMFT
-    Reeves, I.R.B., Moore, L.J., Valentine, K., Fagherazzi, S., & Kirwan, M.L. (in review). Cross-landscape couplings influence 
-    ecosystem extent in coastal barrier systems.
+    Reeves, I.R.B., Moore, L.J., Valentine, K., Fagherazzi, S., & Kirwan, M.L. (in review). Sediment exchange across coastal 
+    barrier landscapes alters ecosystem extents.
 #### Barrier3D
     Reeves, I.R.B., Moore, L.J., Murray, A.B., Anarde, K.A., & Goldstein, E.B. (2021). Dune dynamics drive discontinuous 
     barrier retreat. Geophysical Research Letters, 48(13), e2021GL092958. https://doi.org/10.1029/2021GL092958.
