@@ -2,12 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name="barrierbmft",
-    version="0.0.1.dev0",
+    version="1.0",
     description="Coupled Barrier-Bay-Marsh-Forest Transect Model",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="Ian Reeves",
-    author_email="reevesi@live.unc.edu",
+    author_email="ian.reeves@whoi.edu",
     url="https://github.com/irbreeves/BarrierBMFT",
     classifiers=[
         "Intended Audience :: Science/Research",
