@@ -4,15 +4,15 @@ Coupled Barrier-Bay-Marsh-Forest Transect Model
 
 ## About
 *BarrierBMFT* is an coupled model framework for exploring morphodynamic interactions across components of the entire
-coastal barrier system, from the ocean shoreface to the mainland forest. The model frameqork couples *Barrier3D* (Reeves 
-et al., 2021, a spatially explicit model of barrier evolution, with the Python version of the Coastal Landscape Transect 
-model (*CoLT*; Valentine et al., 2023), known as *PyBMFT-C* (Bay-Marsh-Forest Transect Model with Carbon). In the coupled 
-model framework, BarrierBMFT, two *PyBMFT-C* simulations drive evolution of back-barrier marsh, bay, mainland marsh, and 
+coastal barrier system, from the ocean shoreface to the mainland forest. The model framework couples [*Barrier3D*](https://github.com/UNC-CECL/Barrier3D) (Reeves 
+et al., 2021), a spatially explicit model of barrier evolution, with the Python version of the [Coastal Landscape Transect 
+model](https://github.com/csdms-contrib/colt) (*CoLT*; Valentine et al., 2023), known as [*PyBMFT-C*](https://github.com/UNC-CECL/PyBMFT-C) (Bay-Marsh-Forest Transect Model with Carbon). In the *BarrierBMFT* coupled 
+model framework, two *PyBMFT-C* simulations drive evolution of back-barrier marsh, bay, mainland marsh, and 
 forest ecosystems, and a *Barrier3D* simulation drives evolution of barrier and back-barrier marsh ecosystems. As these model
 components simultaneously advance, they dynamically evolve together by sharing information annually to capture the effects 
 of key cross-landscape couplings. *BarrierBMFT* contains no new governing equations or parameterizations itself, but rather is 
-a framework for trading information between *Barrier3D* and *PyBMFT-C*. Detailed desrciptions of *BarrierBMFT* and the
-coupled models involved can be found in publications listed below under *Further Reading*.
+a framework for trading information between *Barrier3D* and *PyBMFT-C*. Detailed descriptions of *BarrierBMFT* and the
+coupled models involved can be found in publications listed below under *References*.
 
 _Copyright (C) 2021 Ian R.B. Reeves (principal developer) licensed under the GNU General Public License v3.0_
 
@@ -22,17 +22,20 @@ BarrierBMFT requires Python 3, and the libraries listed in the project's `requir
 ## Installation
 
 First, download the source code for *BarrierBMFT*, *PyBMFT-C*, and *Barrier3D* into separate subdirectories within the 
-same project directory. To get the source code you can either clone the repositories with git:
+same project directory. The correct versions of *PyBMFT-C* and *Barrier3D* must be used to ensure *BarrierBMFT* works properly.
+To get the source code, download the zip files for:
 
-    git clone git@github.com/UNC-CECL/barrierbmft
-    git clone git@github.com/UNC-CECL/pybmft-c
-    git clone git@github.com/UNC-CECL/barrier3d
-
-or download zip files:
+BarrierBMFT
 
     https://github.com/UNC-CECL/BarrierBMFT/archive/refs/heads/main.zip
-    https://github.com/UNC-CECL/Barrier3D/archive/refs/heads/master.zip
-    https://github.com/UNC-CECL/PyBMFT-C/archive/refs/heads/main.zip
+
+Barrier3D v2.0 release
+
+    https://github.com/UNC-CECL/Barrier3D/archive/refs/tags/v2.0.zip
+
+and PyBMFT-C v1.0 release
+
+    https://github.com/UNC-CECL/PyBMFT-C/archive/refs/tags/v1.0.zip
 
 You should now have directories organized as:
 
@@ -125,7 +128,7 @@ at simulation end:
     plt.xlabel("Distance")
     plt.ylabel("Elevation [m MSL]")
 
-Or, plot the change in extent over time for each ecosystem:
+Or, plot the extent over time for each ecosystem:
 
     # Landscape extent
     widths = barrierbmft.LandscapeTypeWidth_TS
@@ -176,15 +179,26 @@ Or, plot the change in extent over time for each ecosystem:
 
     plt.show()
 
-## Further Reading
+## Resources
 
 #### BarrierBMFT
-    Reeves, I.R.B., Moore, L.J., Valentine, K., Fagherazzi, S., & Kirwan, M.L. (in review). Sediment exchange across coastal 
+    BarrierBMFT Paper: Reeves, I.R.B., Moore, L.J., Valentine, K., Fagherazzi, S., & Kirwan, M.L. (in review). Sediment exchange across coastal 
     barrier landscapes alters ecosystem extents.
-#### Barrier3D
-    Reeves, I.R.B., Moore, L.J., Murray, A.B., Anarde, K.A., & Goldstein, E.B. (2021). Dune dynamics drive discontinuous 
+
+#### Barrier3D v2.0
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7604068.svg)](https://doi.org/10.5281/zenodo.7604068)
+    
+    CSDMS Wiki: https://csdms.colorado.edu/wiki/Model:Barrier3D
+    Repository: https://github.com/UNC-CECL/Barrier3D
+
+    Barrier3D Paper: Reeves, I.R.B., Moore, L.J., Murray, A.B., Anarde, K.A., & Goldstein, E.B. (2021). Dune dynamics drive discontinuous 
     barrier retreat. Geophysical Research Letters, 48(13), e2021GL092958. https://doi.org/10.1029/2021GL092958.
-#### PyBMFT-C / CoLT
-    Valentine, K., Herbert, E. R., Walters, D. C., Chen, Y., Smith, A. J., & Kirwan, M. L. (2023). Climate-driven tradeoffs between 
+
+#### PyBMFT-C v1.0
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7853803.svg)](https://doi.org/10.5281/zenodo.7853803)
+    
+    Repository: https://github.com/UNC-CECL/PyBMFT-C
+
+    CoLT Paper: Valentine, K., Herbert, E. R., Walters, D. C., Chen, Y., Smith, A. J., & Kirwan, M. L. (2023). Climate-driven tradeoffs between 
     landscape connectivity and the maintenance of the coastal carbon sink. Nature Communications, 14, 1137. 
     https://doi.org/10.1038/s41467-023-36803-7.
