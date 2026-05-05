@@ -28,6 +28,7 @@ import math
 import warnings
 from yaml import full_load, dump
 from bmftc_cascade import Bmftc
+import os
 
 warnings.simplefilter("ignore", category=RuntimeWarning)
 
@@ -102,7 +103,20 @@ class BarrierBMFT:
             slope_upland=0.005,
             storm_file="StormTimeSeries_1000yr.npy",  # "StormSeries_VCR_Berm1pt9m_Slope0pt04.npy",
             parameter_file="barrier3d-parameters.yaml",
-            b3d_instance=None
+            b3d_instance=None,
+            marsh_datadir=r"C:/Users/Lexi/PycharmProjects/BarrierBMFT/Input/PyBMFT-C",
+            bay_fetch_initial=5000,
+            forest_width_initial_fixed=False,
+            forest_width_initial=5000,
+            wind_speed=6,
+            filename_equilbaydepth=r"Equilibrium Bay Depth.mat",
+            filename_marshspinup=r"MarshStrat_all_RSLR1_CO50.mat",
+            marsh_width_initial=1000,
+            mainland_name="mainland",
+            backbarrier_name="backbarrier",
+            mainland_forest_on=True,
+            backbarrier_forest_on=False,
+
     ):
         """ Initialize Barrier3D and PyBMFT-C """
 
@@ -111,38 +125,41 @@ class BarrierBMFT:
 
         # Initialize PyBMFT-C
         # Mainland shoreline
-        # might need to initialize time step here using B3D time step
         self._bmftc_ML = Bmftc(
-            name="mainland_cascade",
+            name=mainland_name,
             time_step_count=time_step_count,
             relative_sea_level_rise=relative_sea_level_rise,
             reference_concentration=reference_concentration,
             slope_upland=slope_upland,
-            bay_fetch_initial=5000,
-            forest_width_initial_fixed=False,
-            forest_width_initial=5000,
-            wind_speed=6,
-            forest_on=True,
-            filename_equilbaydepth="C:/Users/Lexi/PycharmProjects/BarrierBMFT/Input/PyBMFT-C/Equilibrium Bay Depth.mat",  # "Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",
-            filename_marshspinup="C:/Users/Lexi/PycharmProjects/BarrierBMFT/Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",  # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
-            marsh_width_initial=1000,  # 500
+            bay_fetch_initial=bay_fetch_initial,
+            forest_width_initial_fixed=forest_width_initial_fixed,
+            forest_width_initial=forest_width_initial,
+            wind_speed=wind_speed,
+            forest_on=mainland_forest_on,
+            filename_equilbaydepth=os.path.join(marsh_datadir, filename_equilbaydepth),
+            # "Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",
+            filename_marshspinup=os.path.join(marsh_datadir, filename_marshspinup),
+            # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
+            marsh_width_initial=marsh_width_initial,  # 500
         )
 
         # Back-barier shoreline
         self._bmftc_BB = Bmftc(
-            name="backbarrier_cascade",
+            name=backbarrier_name,
             time_step_count=time_step_count,
             relative_sea_level_rise=relative_sea_level_rise,
             reference_concentration=reference_concentration,
             slope_upland=slope_upland,
-            bay_fetch_initial=5000,
-            forest_width_initial_fixed=False,
-            forest_width_initial=5000,  # 5000 accomodates 250 yrs at R=15 and S=0.001
-            wind_speed=6,
-            forest_on=False,
-            filename_equilbaydepth="C:/Users/Lexi/PycharmProjects/BarrierBMFT/Input/PyBMFT-C/Equilibrium Bay Depth.mat",  # "Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",
-            filename_marshspinup="C:/Users/Lexi/PycharmProjects/BarrierBMFT/Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",  # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
-            marsh_width_initial=1000,  # 500
+            bay_fetch_initial=bay_fetch_initial,
+            forest_width_initial_fixed=forest_width_initial_fixed,
+            forest_width_initial=forest_width_initial,  # 5000 accomodates 250 yrs at R=15 and S=0.001
+            wind_speed=wind_speed,
+            forest_on=backbarrier_forest_on,
+            filename_equilbaydepth=os.path.join(marsh_datadir, filename_equilbaydepth),
+            # "Input/PyBMFT-C/EquilibriumBayDepth_f3000_w5.mat",
+            filename_marshspinup=os.path.join(marsh_datadir, filename_marshspinup),
+            # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
+            marsh_width_initial=marsh_width_initial,  # 500
         )
 
         # Initialize Barrier3D
