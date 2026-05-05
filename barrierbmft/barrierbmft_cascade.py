@@ -141,6 +141,7 @@ class BarrierBMFT:
             filename_marshspinup=os.path.join(marsh_datadir, filename_marshspinup),
             # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
             marsh_width_initial=marsh_width_initial,  # 500
+            marsh_datadir=marsh_datadir
         )
 
         # Back-barier shoreline
@@ -160,6 +161,7 @@ class BarrierBMFT:
             filename_marshspinup=os.path.join(marsh_datadir, filename_marshspinup),
             # "Input/PyBMFT-C/MarshStrat_all_RSLR1_CO50.mat",
             marsh_width_initial=marsh_width_initial,  # 500
+            marsh_datadir=marsh_datadir
         )
 
         # Initialize Barrier3D
