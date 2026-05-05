@@ -27,7 +27,7 @@ import numpy as np
 import math
 import warnings
 from yaml import full_load, dump
-from bmftc import Bmftc
+from bmftc_cascade import Bmftc
 
 warnings.simplefilter("ignore", category=RuntimeWarning)
 
