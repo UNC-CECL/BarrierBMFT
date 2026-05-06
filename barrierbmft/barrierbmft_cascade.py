@@ -6,6 +6,7 @@ Changes to this file (compared to original barrierbmft file) include:
 1. removing the barrier3d initialization during the init_equal() function
 2. changing set_yaml("TMAX", bmftc_ML.dur+1, fid) to set_yaml("TMAX", bmftc_ML.dur, fid) in init_equal function
     NOTE: this occurs at the beginning and end of the init_equal() function, so it was changed in both places
+    May 6, 2026: removed these lines from the init_equal function entirely
 3. split the update function into two different functions
     function 1 (update) includes everything before advancing b3d
         requires input of b3d instance
@@ -20,35 +21,20 @@ Changes to this file (compared to original barrierbmft file) include:
 5. added int() to line: start_b3d = start_b3d[int(abs(sc_b3d)):] bc sc_b3d is a float and caused an error
 
 Lexi (Van Blunk) Fiegelist
-Last updated: 5 May 2026
+Last updated: 6 May 2026
 """
 
 import numpy as np
 import math
 import warnings
-from yaml import full_load, dump
 from bmftc_cascade import Bmftc
 import os
 
 warnings.simplefilter("ignore", category=RuntimeWarning)
 
-def set_yaml(var_name, new_vals, file_name):
-    with open(file_name) as f:
-        doc = full_load(f)
-    doc[var_name] = new_vals
-    with open(file_name, "w") as f:
-        dump(doc, f)
 
-
-def init_equal(bmftc_ML, bmftc_BB, datadir, parameter_file, storm_file, b3d_instance):
+def init_equal(bmftc_ML, bmftc_BB, b3d_instance):
     """Initialize Barrier3D and set identical parameters equal to values in PyBMFT-C"""
-    # -----------------------------------------------------------------------------------
-    # possibly get rid of this since we already initialized barrier3d
-    fid = datadir + parameter_file
-
-    # Set storm series and duration
-    set_yaml("storm_file", storm_file, fid)
-    set_yaml("TMAX", bmftc_ML.dur, fid)  # [yrs] Duration of simulation
 
     # -----------------------------------------------------------------------------------
     # Check if PyBMFT-C Parameters Are Equal
@@ -82,11 +68,7 @@ def init_equal(bmftc_ML, bmftc_BB, datadir, parameter_file, storm_file, b3d_inst
         return
 
     # Equalize Barrier3D/PyBMFT-C Values of Identical Parameters
-    b3d_instance._TMAX = bmftc_ML.dur  # [yrs] Duration of simulation
-    b3d_instance._RSLR = np.ones([len(b3d_instance.RSLR) + 1]) * (bmftc_ML.RSLRi / 1000) / 10  # [m/yr] Relative sea-level rise rate, converted units
     b3d_instance._BayDepth = bmftc_ML.Bay_depth[bmftc_ML.startyear - 1] / 10  # [yrs] Initial depth of bay
-
-    # return barrier3d
 
 
 class BarrierBMFT:
@@ -165,10 +147,9 @@ class BarrierBMFT:
         )
 
         # Initialize Barrier3D
-        datadir = "C:/Users/Lexi/PycharmProjects/BarrierBMFT/Input/Barrier3D/"  # Specify data directory
         self._parameter_file = parameter_file  # Specify file with Barrier3D initial conditions
-        init_equal(self._bmftc_ML, self._bmftc_BB, datadir, self._parameter_file, storm_file, b3d_instance)  # set
-        # matching parameters equal to ensure b3d and bmftc are consistent
+        init_equal(self._bmftc_ML, self._bmftc_BB, b3d_instance)  # set matching parameters equal to ensure
+        # b3d and bmftc are consistent
 
         # ===========================================
         # Initialize break variables
