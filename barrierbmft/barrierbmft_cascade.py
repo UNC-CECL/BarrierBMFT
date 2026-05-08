@@ -68,7 +68,7 @@ def init_equal(bmftc_ML, bmftc_BB, b3d_instance):
         return
 
     # Equalize Barrier3D/PyBMFT-C Values of Identical Parameters
-    b3d_instance._BayDepth = bmftc_ML.Bay_depth[bmftc_ML.startyear - 1] / 10  # [yrs] Initial depth of bay
+    b3d_instance._BayDepth = bmftc_ML.Bay_depth[bmftc_ML.startyear - 1] / 10  # [dam] Initial depth of bay
 
 
 class BarrierBMFT:
@@ -83,7 +83,6 @@ class BarrierBMFT:
             relative_sea_level_rise=12,
             reference_concentration=60,
             slope_upland=0.005,
-            storm_file="StormTimeSeries_1000yr.npy",  # "StormSeries_VCR_Berm1pt9m_Slope0pt04.npy",
             parameter_file="barrier3d-parameters.yaml",
             b3d_instance=None,
             marsh_datadir=r"C:/Users/Lexi/PycharmProjects/BarrierBMFT/Input/PyBMFT-C",
@@ -158,22 +157,38 @@ class BarrierBMFT:
 
         # ===========================================
         # Add initial barrier topography from Barrier3D to initial "forest" (i.e., subaerial) portion of PyBMFT-C transect
-        b3d_transect = np.mean(b3d_instance.InteriorDomain, axis=1) * 10  # Take average across alongshore dimension, convert to m (vertical dimension)
+        # converting the Barrier3D interior domain into a single transect and shaping it into the back-barrier Bmftc
+        # forest transect (only for the back-barrier transect because the mainland has a "real" forest)
+        b3d_transect = np.mean(b3d_instance.InteriorDomain, axis=1) * 10  # Take average across alongshore dimension
+        # (rows), convert to m (vertical dimension)
+        # resulting transect is high values (first column) to low values (last column) (oceanside to bayside)
         x = np.linspace(1, len(b3d_transect) * 10, num=len(b3d_transect) * 10)
         xp = np.linspace(1, len(b3d_transect), num=len(b3d_transect)) * 10
         xp = xp - 5
         b3d_transect = np.interp(x, xp, b3d_transect)  # Interpolate from dam to m (horizontal dimension)
+        # b3d_transect now has width of barrier in meters, so had to split each "cell" (a single array column) into 10
+        # cells and interpolate between two ends
         x_f = np.where(b3d_transect < (b3d_instance.SL * 10))[0][0] - 1  # [m] Distance of first interior (subaerial) cell from B3D ocean shoreline (excluding dunes/beach)
-        b3d_transect = b3d_transect[:x_f]
-        b3d_transect = np.flip(b3d_transect)
+        # basically, x_f is where the marsh begins
+        b3d_transect = b3d_transect[:x_f]  # array is now only cells above sea level (still in m)
+        b3d_transect = np.flip(b3d_transect)  # array is now one column with rows oriented marsh at top, barrier (ocean)
+        # at bottom (still in m)
         b3d_transect = b3d_transect + self._bmftc_BB.msl[self._bmftc_BB.startyear - 1] + self._bmftc_BB.amp + (self._bmftc_BB.RSLRi / 1000)  # Convert vertical datums
 
+        # up until now, b3d_transect is only based on the Barrier3D domain and next we need to fit it to the
+        # back-barrier bmftc forest (subaerial) transect by subtracting or adding to the oceanside end of the transect
+
         # Adjust size of Barrier3D topo to fit PyBMFT-C "forest" section
-        BB_forest_len = len(self._bmftc_BB.elevation[self._bmftc_BB.startyear, self._bmftc_BB.x_f:])
-        if len(b3d_transect) > BB_forest_len:
+        BB_forest_len = len(self._bmftc_BB.elevation[self._bmftc_BB.startyear, self._bmftc_BB.x_f:])  # initialized
+        # back-barrier bmftc forest (all zeros to begin with)
+
+        if len(b3d_transect) > BB_forest_len:  # if the barrier3d "forest" created above (using b3d domain) is larger
+            # than the initialized back-barrier bmftc forest, cut off at the high elevation (ocean-side) end
             subtract = len(b3d_transect) - BB_forest_len
             b3d_transect = b3d_transect[:-subtract]
-        elif len(b3d_transect) < BB_forest_len:
+        elif len(b3d_transect) < BB_forest_len:  # if the barrier3d "forest" created above (using b3d domain) is smaller
+            # than the initialized back-barrier bmftc forest, add to the high elevation (ocean-side) end
+            # this addition may be at a much lower elevation than the barrier segment
             add = np.ones([BB_forest_len - len(b3d_transect)]) * (self._bmftc_BB.msl[self._bmftc_BB.startyear] + self._bmftc_BB.amp)
             b3d_transect = np.append(b3d_transect, add)
 
@@ -196,7 +211,6 @@ class BarrierBMFT:
 
     # =======================================================================================================================================================================================================================================
     # =======================================================================================================================================================================================================================================
-    # Time Loop
 
     def update(self, b3d_instance):
 
@@ -289,6 +303,8 @@ class BarrierBMFT:
         StartDomainWidth = np.shape(b3d_instance.InteriorDomain)[0]  # Width of interior domain from last time step
 
         # Find barrier interior widths for each dam alongshore
+        # this is the same thing as the FindWidths function in Barrier3D
+        # count the cells (rows) until a value <= SL is reached. add that width to the array
         InteriorWidth = [0] * b3d_instance.BarrierLength
         for bl in range(b3d_instance.BarrierLength):
             width = next((index for index, value in enumerate(b3d_instance.InteriorDomain[:, bl]) if value <= b3d_instance.SL), StartDomainWidth)
@@ -301,6 +317,8 @@ class BarrierBMFT:
         Target_width_barriermarsh = self._bmftc_BB.B - self._bmftc_BB.x_m - self._x_s_offset  # [m] Target width of barrier-marsh
         Target_width_barriermarsh = math.ceil(Target_width_barriermarsh / 10)  # [dam]
 
+        # if the barrier-marsh system is wider (narrower) than the b3d domain, adjust the b3d domain width
+        # new rows are intialized at the bay depth elevation, but updated next
         addRows = Target_width_barriermarsh - StartDomainWidth + 1  # Number of rows to add (if positive) or subtract (if negative) from Barrier3D domain
 
         if addRows > 0:
@@ -330,23 +348,29 @@ class BarrierBMFT:
         else:
             NewDomain = b3d_instance.InteriorDomain  # Domains stay same size
 
+        # based on the width of each column of the interior domain, determine which marsh transects cells to use
         if len(marsh_transect) >= 1:
             # Update Marsh In Barrier3D
             x_marsh = Target_width_barriermarsh + 1  # [dam] Cross-shore location of marsh edge relative to interior domain
             for w in range(b3d_instance.BarrierLength):
                 width_diff = x_marsh - (InteriorWidth[w] + len(marsh_transect))
-                if width_diff < 0:
+                if width_diff < 0:  # we will not use the full marsh transect, cut off at bay edge
                     MarshTransect = marsh_transect[:-int(abs(width_diff))]  # [dam]
-                elif width_diff > 0:
+                elif width_diff > 0:  # we need to add cells to the marsh transect
                     add = np.ones([int(abs(width_diff))]) * marsh_transect[-1]  # Set additional marsh cells to elevation of last marsh
                     MarshTransect = np.append(marsh_transect, add)  # [dam]
-                else:
+                else:  # no need to adjust the marsh transect
                     MarshTransect = marsh_transect  # [dam]
 
-                InteriorTransect = NewDomain[:InteriorWidth[w], w]  # [dam]
+                InteriorTransect = NewDomain[:InteriorWidth[w], w]  # [dam] just the sub-aerial domain?
                 BarrierMarshTransect = np.append(InteriorTransect, MarshTransect)  # Combine interior and marsh
 
+                # replace the initialized b3d marsh cells with the actual Bmftc marsh elevations
+                # the Barrier segment should be exactly the same elevations
                 NewDomain[:len(BarrierMarshTransect), w] = BarrierMarshTransect
+                # if there are additional cells, set them to the average bay depth between the mainland and back-barrier
+                # adjusted for SL and converted to dam
+                # not sure when this would occur since we already add cells to fill in the gap...
                 NewDomain[len(BarrierMarshTransect):, w] = (b3d_instance.SL - np.mean([self._bmftc_ML.db, self._bmftc_BB.db])) / 10
 
         b3d_instance.InteriorDomain = NewDomain
@@ -361,22 +385,24 @@ class BarrierBMFT:
         again, in original in the original code, the time_step variable used here was not tied to a class time index.
         therefore, it did not update with bmftc or b3d update functions and would still be equal to 0
         when time_step = 0:
-        mftc classes are at time_index = 1
+        bmftc classes are at time_index = 1
         b3d class is at time_index = 2
         therefore, the time_step here needs to be b3d_instance.time_index - 2 or self.bmftc.time_index - 1
         """
         time_step = b3d_instance.time_index - 2
 
-        shoreline_change = b3d_instance.x_s_TS[-1] - b3d_instance.x_s_TS[-2]
+        shoreline_change = b3d_instance.x_s_TS[-1] - b3d_instance.x_s_TS[-2]  # this list is constantly being added to,
+        # so the call to the last two elements is correct
         self._x_s_offset = self._x_s_offset + (shoreline_change * 10)
 
         start_b3d = np.mean(new_domain, axis=1) * 10  # Barrier3D domain before update, averaged across alongshore dimension, converted to m (vertical dimension)
         end_b3d = np.mean(b3d_instance.InteriorDomain, axis=1) * 10  # Barrier3D domain after update, averaged across alongshore dimension, converted to m (vertical dimension)
 
-        # Update start domain size to match end domain
+        # Update start domain size to match end domain - this is based on dune migration which is why we trim or add on
+        # the front of the transect
         sc_b3d = b3d_instance.ShorelineChangeTS[-1]  # Shoreline change [dam] from Barrier3D model update (this timestep)
-        # sc_b3d = b3d_instance.ShorelineChangeTS[self.bmftc.time_index]  # Shoreline change [dam] from Barrier3D model update (this timestep)
-        # not sure if we want time_step or time_index or b3d_time_index here...
+        # if this is supposed to be the b3d model from this time step, it should be b3d_instance.time_index - 1 or just
+        # sc_b3d = b3d_instance.ShorelineChange  # this is the most recent value from b3d
         if sc_b3d < 0:  # Shoreline erosion
             start_b3d = start_b3d[int(abs(sc_b3d)):]  # Trim off front
         elif sc_b3d > 0:  # Shoreline progradation
